@@ -1,0 +1,52 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-05-19 10:41-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: colorout/R/colorout.R:48
+#, c-format
+msgid ""
+"The R output will not be colorized because it seems that your terminal does "
+"not support ANSI escape codes.\n"
+"Sys.getenv('TERM') returned '%s'."
+msgstr ""
+
+#: colorout/R/colorout.R:61
+msgid ""
+"Please, do ?ColorOut to know how to enable the colorizing of R output on "
+"Emacs+ESS."
+msgstr ""
+
+#: colorout/R/colorout.R:74
+msgid "The output colorization was canceled."
+msgstr ""
+
+#: colorout/R/colorout.R:92 colorout/R/colorout.R:94 colorout/R/colorout.R:96
+#: colorout/R/colorout.R:98 colorout/R/colorout.R:100
+#: colorout/R/colorout.R:102 colorout/R/colorout.R:104
+#: colorout/R/colorout.R:106 colorout/R/colorout.R:225
+#: colorout/R/colorout.R:227 colorout/R/colorout.R:229
+#: colorout/R/colorout.R:231 colorout/R/colorout.R:233
+#: colorout/R/colorout.R:235 colorout/R/colorout.R:237
+#: colorout/R/colorout.R:239
+#, c-format
+msgid "The value of '%s' must be a number correspoding to an ANSI escape code."
+msgstr ""
+
+#: colorout/R/colorout.R:108 colorout/R/colorout.R:241
+msgid "'verbose' must be of mode 'logical'."
+msgstr ""

@@ -1,0 +1,46 @@
+Version 1.0-2 (2014-03-06)
+
+    - Don't activate output colorizing if the RSTUDIO environment variable
+      exists.
+
+Version 1.0-1 (2013-10-03)
+
+    - Different color for negative numbers.
+
+    - Recognize scientific numbers as a whole.
+
+    - Don't use the value of getOption("OutDec") to identify numbers. Always
+      accept "," and "." as part of numbers.
+
+    - Be verbose while testing the TERM environment variable if
+      interactive() == TRUE.
+
+Version 0.9-9 (2011-12-08)
+
+    - Recognize hexadecimal numbers.
+
+    - Use the value of getOption("OutDec") to identify numbers.
+
+    - Do not enable colorization if interactive() == FALSE.
+
+Version 0.9-4 (2011-11-22)
+
+    - Follow the documentation and do not colorize the output after being
+      loaded if Sys.getenv("TERM") == "".
+
+    - Do not crash JGR, RStudio and other GUIs when unloading the 'colorout'
+      namespace.
+
+Version 0.9-3 (2011-11-22)
+
+    - New functions to support 256 colors: setOutputColors256() and
+      show256Colors().
+
+    - Possibility of working with Emacs/ESS, but with issues: no 256 colors
+      and conflict with ESS autocompletion mecanism.
+
+    - Fix warning on unloadNamespace() called by R CMD check.
+
+Version 0.9-0 (2011-11-19)
+
+    - Initial release.

@@ -1,0 +1,18 @@
+Package: colorout
+Version: 1.0-2
+Date: 2014-03-06
+Title: Colorize R output on terminal emulators
+Author: Jakson Aquino
+Maintainer: Jakson Alves de Aquino <jalvesaq@gmail.com>
+OS_type: unix
+Description: Colorize R output when it is running on a terminal emulator.
+   There is no support for Graphical User Interfaces, such as Windows RGui,
+   RStudio, RKward, JGR etc. The functions of this package only work if R is
+   compiled for Unix systems and it is running interactively in a terminal
+   emulator. The terminal must support Select Graphic Rendition (SGR, also
+   known as ANSI escape codes or sequences). The package contains a C library
+   with a function that replaces the default Rstd_WriteConsoleEx which, when
+   enabled, is responsible for printing messages in the Console when R is
+   running in interactive mode.
+License: GPL (>= 2)
+URL: http://www.lepem.ufc.br/jaa/colorout.html
