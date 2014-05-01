@@ -31,12 +31,32 @@ static void (*save_ptr_R_WriteConsole)(const char *, int);
 static void (*save_ptr_R_WriteConsoleEx)(const char *, int, int);
 static void *save_R_Outputfile;
 static void *save_R_Consolefile;
+static int isnumber(const char *, int, int l);
 
 static char crnormal[32], crnumber[32], crnegnum[32], crstring[32],
      crconst[32], crstderr[32], crwarn[32], crerror[32];
 static int normalsize, numbersize, negnumsize, stringsize, constsize;
 static int colors_initialized = 0;
 static int colorout_initialized = 0;
+
+static int isnumber(const char * b, int i, int l)
+{
+    if(l > (i + 5))
+        l = i + 5;
+    i++;
+    while(i < l){
+        if(b[i] != '.' && b[i] != ',' &&
+                ((b[i] > 0   && b[i] < '0') ||
+                 (b[i] > '9' && b[i] < 'A') ||
+                 (b[i] > 'Z' && b[i] < 'a') ||
+                 (b[i] > 'z' && b[i] > 0)))
+            break;
+        if((b[i] < '0' || b[i] > '9') && b[i] != '.' && b[i] != ',')
+            return 0;
+        i++;
+    }
+    return 1;
+}
 
 void colorout_SetColors(char **normal, char **number, char **negnum, char **string,
         char **constant, char **stderror, char **warn, char **error,
@@ -238,7 +258,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
-            } else if(bbuf[i] >= '0' && bbuf[i] <= '9'){
+            } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len)){
                 strcat(newbuf, crnumber); /* positive numbers */
                 j += numbersize;
                 while(i < len && ((bbuf[i] >= '0' && bbuf[i] <= '9') || bbuf[i] == '.' || bbuf[i] == ',')){
