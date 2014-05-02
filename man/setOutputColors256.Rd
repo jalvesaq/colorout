@@ -6,14 +6,16 @@
   terminal must be capable of displaying 256 colors.
 }
 \usage{
-setOutputColors256(normal = 40, number = 214, negnum = 209, string = 85, const = 35,
-                   stderror = 33, warn = c(1, 0, 1), error = c(1, 15),
-                   verbose = TRUE)
+setOutputColors256(normal = 40, number = 214, negnum = 209, date = 179,
+                   string = 85, const = 35, stderror = 33, warn = c(1, 0, 1),
+                   error = c(1, 15), verbose = TRUE)
 }
 \arguments{
   \item{normal}{Formating and color of normal text.}
   \item{number}{Formating and color of numbers.}
   \item{negnum}{Formating and color of negative numbers.}
+  \item{date}{Formating and color of dates (output in the format
+    \samp{yyyy-mm-dd}).}
   \item{string}{Formating and color of quoted text.}
   \item{const}{Formating and color of \code{TRUE}, \code{FALSE}, \code{NULL},
     \code{NA}, \code{NaN} and \code{Inf}.}
@@ -62,11 +64,11 @@ setOutputColors256(normal = 40, number = 214, negnum = 209, string = 85, const =
 
 \examples{
 # Color scheme for white background:
-setOutputColors256(normal = c(0, 0, 18), number = c(0, 0, 5),
-                   negnum = c(0, 0, 1), string = c(0, 0, 22),
-                   const = c(0, 0, 94), stderror = 52)
+setOutputColors256(normal = c(0, 0, 18), number = c(0, 0, 90),
+                   negnum = c(0, 0, 88), date = c(0, 0, 53),
+                   string = c(0, 0, 22), const = c(0, 0, 94), stderror = 52)
 
 # Color schemes for black background:
-setOutputColors256(normal = 39, number = 51, negnum = 183, string = 79, const = 75)
-setOutputColors256(202, 214, 209, 184, 179)
+setOutputColors256(normal = 39, number = 51, negnum = 183, date = 179, string = 79, const = 75)
+setOutputColors256(202, 214, 209, 184, 79, 179)
 }

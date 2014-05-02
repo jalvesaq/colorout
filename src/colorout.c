@@ -37,9 +37,9 @@ static void (*save_ptr_R_WriteConsoleEx)(const char *, int, int);
 static void *save_R_Outputfile;
 static void *save_R_Consolefile;
 
-static char crnormal[32], crnumber[32], crnegnum[32], crstring[32],
+static char crnormal[32], crnumber[32], crnegnum[32], crdate[32], crstring[32],
      crconst[32], crstderr[32], crwarn[32], crerror[32];
-static int normalsize, numbersize, negnumsize, stringsize, constsize;
+static int normalsize, numbersize, negnumsize, datesize, stringsize, constsize;
 static int colors_initialized = 0;
 static int colorout_initialized = 0;
 
@@ -65,13 +65,32 @@ static int isnumber(const char * b, int i, int len)
     return 1;
 }
 
-void colorout_SetColors(char **normal, char **number, char **negnum, char **string,
-        char **constant, char **stderror, char **warn, char **error,
-        int *verbose)
+static int isdate(const char * b, int i, int len)
+{
+    if((len - i) < 10)
+        return 0;
+    if((b[i] >= '1' && b[i] <= '9') &&
+            (b[i+1] >= '0' && b[i+1] <= '9') &&
+            (b[i+2] >= '0' && b[i+2] <= '9') &&
+            (b[i+3] >= '0' && b[i+3] <= '9') &&
+            b[i+4] == '-' &&
+            (b[i+5] >= '0' && b[i+5] <= '9') &&
+            (b[i+6] >= '0' && b[i+6] <= '9') &&
+            b[i+7] == '-' &&
+            (b[i+8] >= '0' && b[i+8] <= '9') &&
+            (b[i+9] >= '0' && b[i+9] <= '9'))
+        return 1;
+    return 0;
+}
+
+void colorout_SetColors(char **normal, char **number, char **negnum,
+        char **datenum, char **string, char **constant, char **stderror,
+        char **warn, char **error, int *verbose)
 {
     strcpy(crnormal, normal[0]);
     strcpy(crnumber, number[0]);
     strcpy(crnegnum, negnum[0]);
+    strcpy(crdate,   datenum[0]);
     strcpy(crstring, string[0]);
     strcpy(crconst,  constant[0]);
     strcpy(crstderr, stderror[0]);
@@ -81,12 +100,13 @@ void colorout_SetColors(char **normal, char **number, char **negnum, char **stri
     normalsize = strlen(crnormal);
     numbersize = strlen(crnumber);
     negnumsize = strlen(crnegnum);
+    datesize = strlen(crdate);
     stringsize = strlen(crstring);
     constsize = strlen(crconst);
 
     if(*verbose)
-      printf("%snormal\033[0m, %snumber\033[0m, %snegnum\033[0m, %sstring\033[0m, %sconst\033[0m, %sstderror\033[0m, %swarn\033[0m, %serror\033[0m.\n",
-          crnormal, crnumber, crnegnum, crstring, crconst, crstderr, crwarn, crerror);
+      printf("%snormal\033[0m, %snumber\033[0m, %snegnum\033[0m, %sdate\033[0m, %sstring\033[0m, %sconst\033[0m, %sstderror\033[0m, %swarn\033[0m, %serror\033[0m.\n",
+          crnormal, crnumber, crnegnum, crdate, crstring, crconst, crstderr, crwarn, crerror);
 }
 
 char *colorout_make_bigger(char *ptr, int *len)
@@ -265,6 +285,16 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
+            } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isdate(bbuf, i, len)){
+                strcat(newbuf, crdate); /* date */
+                j += datesize;
+                for(int k = 0; k < 10; k++){
+                    newbuf[j] = bbuf[i];
+                    i++;
+                    j++;
+                }
+                strcat(newbuf, crnormal);
+                j += normalsize;
             } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len)){
                 strcat(newbuf, crnumber); /* positive numbers */
                 j += numbersize;
@@ -324,6 +354,7 @@ void colorout_ColorOutput()
         strcpy(crnormal, "\033[32m");
         strcpy(crnumber, "\033[33m");
         strcpy(crnegnum, "\033[33m");
+        strcpy(crdate, "\033[33m");
         strcpy(crstring, "\033[36m");
         strcpy(crconst,  "\033[35m");
         strcpy(crstderr, "\033[34m");

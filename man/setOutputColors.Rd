@@ -5,7 +5,7 @@
   Set the output colors to be used if R is running in a terminal emulator.
 }
 \usage{
-setOutputColors(normal = 2, number = 3, negnum = 3, string = 6, const = 5,
+setOutputColors(normal = 2, number = 3, negnum = 3, date = 3, string = 6, const = 5,
                 stderror = 4, warn = c(1, 0, 1), error = c(1, 7),
                 verbose = TRUE)
 }
@@ -13,6 +13,8 @@ setOutputColors(normal = 2, number = 3, negnum = 3, string = 6, const = 5,
   \item{normal}{Formating and color of normal text.}
   \item{number}{Formating and color of numbers.}
   \item{negnum}{Formating and color of negative numbers.}
+  \item{date}{Formating and color of dates (output in the format
+    \samp{yyyy-mm-dd}}
   \item{string}{Formating and color of quoted text.}
   \item{const}{Formating and color of \code{TRUE}, \code{FALSE}, \code{NULL},
     \code{NA}, \code{NaN} and \code{Inf}.}
@@ -58,5 +60,5 @@ setOutputColors(normal = 2, number = 3, negnum = 3, string = 6, const = 5,
 
 \examples{
 # Color scheme for white background:
-setOutputColors(4, 5, 1, c(1, 0, 5), 5, 1)
+setOutputColors(4, 5, 1, 5, c(1, 0, 5), 5, 1)
 }
