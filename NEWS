@@ -1,4 +1,9 @@
-Version 1.0-2 (2014-03-06)
+Version 1.0-3 (2014-05-02)
+
+   - Recognize output in the format yyyy-mm-dd as date (feature requested by
+     Grant Farnsworth).
+
+Version 1.0-2 (2013-12-26)
 
     - Don't activate output colorizing if the RSTUDIO environment variable
       exists.

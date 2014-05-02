@@ -133,9 +133,13 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
         if(hasWarn == NULL)
             hasWarn = strstr(buf, _("WARNING"));
         if(hasWarn == NULL)
+            hasWarn = strstr(buf, _("Lost warning messages"));
+        if(hasWarn == NULL)
             hasWarn = strstr(buf, "Warning");
         if(hasWarn == NULL)
             hasWarn = strstr(buf, "WARNING");
+        if(hasWarn == NULL)
+            hasWarn = strstr(buf, "Lost warning messages");
 
         char *hasError = strstr(buf, _("Error"));
         if(hasError == NULL)

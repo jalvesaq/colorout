@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-19 10:41-0300\n"
+"POT-Creation-Date: 2014-05-02 13:49-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout/R/colorout.R:48
+#: colorout/R/colorout.R:52
 #, c-format
 msgid ""
 "The R output will not be colorized because it seems that your terminal does "
@@ -25,28 +25,24 @@ msgid ""
 "Sys.getenv('TERM') returned '%s'."
 msgstr ""
 
-#: colorout/R/colorout.R:61
+#: colorout/R/colorout.R:65
 msgid ""
 "Please, do ?ColorOut to know how to enable the colorizing of R output on "
 "Emacs+ESS."
 msgstr ""
 
-#: colorout/R/colorout.R:74
+#: colorout/R/colorout.R:78
 msgid "The output colorization was canceled."
 msgstr ""
 
-#: colorout/R/colorout.R:92 colorout/R/colorout.R:94 colorout/R/colorout.R:96
-#: colorout/R/colorout.R:98 colorout/R/colorout.R:100
-#: colorout/R/colorout.R:102 colorout/R/colorout.R:104
-#: colorout/R/colorout.R:106 colorout/R/colorout.R:225
-#: colorout/R/colorout.R:227 colorout/R/colorout.R:229
-#: colorout/R/colorout.R:231 colorout/R/colorout.R:233
-#: colorout/R/colorout.R:235 colorout/R/colorout.R:237
-#: colorout/R/colorout.R:239
+#: colorout/R/colorout.R:95 colorout/R/colorout.R:97 colorout/R/colorout.R:99
+#: colorout/R/colorout.R:101 colorout/R/colorout.R:103
+#: colorout/R/colorout.R:105 colorout/R/colorout.R:107
+#: colorout/R/colorout.R:109 colorout/R/colorout.R:111
 #, c-format
 msgid "The value of '%s' must be a number correspoding to an ANSI escape code."
 msgstr ""
 
-#: colorout/R/colorout.R:108 colorout/R/colorout.R:241
+#: colorout/R/colorout.R:113
 msgid "'verbose' must be of mode 'logical'."
 msgstr ""

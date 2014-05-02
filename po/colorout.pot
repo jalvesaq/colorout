@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-19 10:41-0300\n"
+"POT-Creation-Date: 2014-05-02 13:49-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,22 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout/src/colorout.c:103
+#: colorout/src/colorout.c:132
 msgid "Warning"
 msgstr ""
 
-#: colorout/src/colorout.c:105
+#: colorout/src/colorout.c:134
 msgid "WARNING"
 msgstr ""
 
-#: colorout/src/colorout.c:111
+#: colorout/src/colorout.c:136
+msgid "Lost warning messages"
+msgstr ""
+
+#: colorout/src/colorout.c:144
 msgid "Error"
 msgstr ""
 
-#: colorout/src/colorout.c:113
+#: colorout/src/colorout.c:146
 msgid "ERROR"
 msgstr ""
