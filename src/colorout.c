@@ -65,24 +65,6 @@ static int isnumber(const char * b, int i, int len)
     return 1;
 }
 
-static int isdate(const char * b, int i, int len)
-{
-    if((len - i) < 10)
-        return 0;
-    if((b[i] >= '1' && b[i] <= '9') &&
-            (b[i+1] >= '0' && b[i+1] <= '9') &&
-            (b[i+2] >= '0' && b[i+2] <= '9') &&
-            (b[i+3] >= '0' && b[i+3] <= '9') &&
-            b[i+4] == '-' &&
-            (b[i+5] >= '0' && b[i+5] <= '9') &&
-            (b[i+6] >= '0' && b[i+6] <= '9') &&
-            b[i+7] == '-' &&
-            (b[i+8] >= '0' && b[i+8] <= '9') &&
-            (b[i+9] >= '0' && b[i+9] <= '9'))
-        return 1;
-    return 0;
-}
-
 void colorout_SetColors(char **normal, char **number, char **negnum,
         char **datenum, char **string, char **constant, char **stderror,
         char **warn, char **error, int *verbose)
@@ -285,7 +267,16 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
-            } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isdate(bbuf, i, len)){
+            } else if(bbuf[i] >= '1' && bbuf[i] <= '9' && (len - i) > 9 &&
+                    bbuf[i+1] >= '0' && bbuf[i+1] <= '9' &&
+                    bbuf[i+2] >= '0' && bbuf[i+2] <= '9' &&
+                    bbuf[i+3] >= '0' && bbuf[i+3] <= '9' &&
+                    bbuf[i+4] == '-' &&
+                    bbuf[i+5] >= '0' && bbuf[i+5] <= '9' &&
+                    bbuf[i+6] >= '0' && bbuf[i+6] <= '9' &&
+                    bbuf[i+7] == '-' &&
+                    bbuf[i+8] >= '0' && bbuf[i+8] <= '9' &&
+                    bbuf[i+9] >= '0' && bbuf[i+9] <= '9'){
                 strcat(newbuf, crdate); /* date */
                 j += datesize;
                 for(int k = 0; k < 10; k++){
