@@ -24,6 +24,11 @@
 
 #define R_INTERFACE_PTRS 1
 
+/* We could use "extern char OutDec;" and test only OutDec instead of always
+   testing both '.' and ',', but some functions (like mtable of memisc
+   package) always print a '.' regardless of the value of OutDec, and ',' is
+   the thousands separator in the US and GB. */
+
 extern void (*ptr_R_WriteConsole)(const char *, int);
 extern void (*ptr_R_WriteConsoleEx)(const char *, int, int);
 
@@ -31,7 +36,6 @@ static void (*save_ptr_R_WriteConsole)(const char *, int);
 static void (*save_ptr_R_WriteConsoleEx)(const char *, int, int);
 static void *save_R_Outputfile;
 static void *save_R_Consolefile;
-static int isnumber(const char *, int, int l);
 
 static char crnormal[32], crnumber[32], crnegnum[32], crstring[32],
      crconst[32], crstderr[32], crwarn[32], crerror[32];
@@ -39,19 +43,22 @@ static int normalsize, numbersize, negnumsize, stringsize, constsize;
 static int colors_initialized = 0;
 static int colorout_initialized = 0;
 
-static int isnumber(const char * b, int i, int l)
+static int isnumber(const char * b, int i, int len)
 {
+    int l = len;
     if(l > (i + 5))
         l = i + 5;
     i++;
     while(i < l){
-        if(b[i] != '.' && b[i] != ',' &&
-                ((b[i] > 0   && b[i] < '0') ||
-                 (b[i] > '9' && b[i] < 'A') ||
-                 (b[i] > 'Z' && b[i] < 'a') ||
-                 (b[i] > 'z' && b[i] > 0)))
+        if(((b[i] > 0   && b[i] < '0') || (b[i] > '9' && b[i] < 'A') || (b[i] > 'Z' && b[i] < 'a') || (b[i] > 'z' && b[i] > 0)) &&
+                b[i] != '.' && b[i] != ',' &&
+                !(b[i] == 'e' && (i + 2) < len && (b[i+1] == '-' || b[i+1] == '+') && b[i+2] >= '0' && b[i+2] <= '9') &&
+                !(b[i-1] == 'e' && (b[i] == '-' || b[i] == '+')))
             break;
-        if((b[i] < '0' || b[i] > '9') && b[i] != '.' && b[i] != ',')
+        if((b[i] < '0' || b[i] > '9') &&
+                b[i] != '.' && b[i] != ',' &&
+                !(b[i] == 'e' && (i + 2) < len && (b[i+1] == '-' || b[i+1] == '+') && b[i+2] >= '0' && b[i+2] <= '9') &&
+                !(b[i-1] == 'e' && (b[i] == '-' || b[i] == '+')))
             return 0;
         i++;
     }
