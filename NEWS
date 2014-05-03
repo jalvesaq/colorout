@@ -1,7 +1,13 @@
-Version 1.0-3 (2014-05-02)
+Version 1.0-3 (2014-05-03)
 
    - Recognize output in the format yyyy-mm-dd as date (feature requested by
      Grant Farnsworth).
+
+   - Start with the default 256 colors scheme if the TERM environment variable
+     has the string "256".
+
+   - Use fbterm color codes when setting a 256 colors scheme if the TERM
+     environment variable is "fbterm".
 
 Version 1.0-2 (2013-12-26)
 

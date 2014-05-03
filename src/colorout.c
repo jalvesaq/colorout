@@ -346,26 +346,38 @@ void colorout_ColorOutput()
         return;
 
     if(colors_initialized == 0){
-        if(strstr(getenv("TERM"), "256")){
-            strcpy(crnormal, "\033[0;38;05;40m");
-            strcpy(crnumber, "\033[0;38;05;214m");
-            strcpy(crnegnum, "\033[0;38;05;209m");
-            strcpy(crdate, "\033[0;38;05;179m");
-            strcpy(crstring, "\033[0;38;05;85m");
-            strcpy(crconst,  "\033[0;38;05;35m");
-            strcpy(crstderr, "\033[0;38;05;33m");
-            strcpy(crwarn,  "\033[0;1;38;05;1m");
-            strcpy(crerror,  "\033[0;48;05;1;38;05;15m");
+        if(strcmp(getenv("TERM"), "fbterm") == 0){
+            strcpy(crnormal, "\033[1;40}");
+            strcpy(crnumber, "\033[1;214}");
+            strcpy(crnegnum, "\033[1;209}");
+            strcpy(crdate,   "\033[1;179}");
+            strcpy(crstring, "\033[1;85}");
+            strcpy(crconst,  "\033[1;35}");
+            strcpy(crstderr, "\033[1;33}");
+            strcpy(crwarn,   "\033[1;1}");
+            strcpy(crerror,  "\033[2;1}\033[1;7}");
         } else {
-            strcpy(crnormal, "\033[32m");
-            strcpy(crnumber, "\033[33m");
-            strcpy(crnegnum, "\033[33m");
-            strcpy(crdate, "\033[33m");
-            strcpy(crstring, "\033[36m");
-            strcpy(crconst,  "\033[35m");
-            strcpy(crstderr, "\033[34m");
-            strcpy(crwarn,  "\033[1;31m");
-            strcpy(crerror,  "\033[41;37m");
+            if(strstr(getenv("TERM"), "256")){
+                strcpy(crnormal, "\033[0;38;5;40m");
+                strcpy(crnumber, "\033[0;38;5;214m");
+                strcpy(crnegnum, "\033[0;38;5;209m");
+                strcpy(crdate,   "\033[0;38;5;179m");
+                strcpy(crstring, "\033[0;38;5;85m");
+                strcpy(crconst,  "\033[0;38;5;35m");
+                strcpy(crstderr, "\033[0;38;5;33m");
+                strcpy(crwarn,   "\033[0;1;38;5;1m");
+                strcpy(crerror,  "\033[0;48;5;1;38;5;15m");
+            } else {
+                strcpy(crnormal, "\033[32m");
+                strcpy(crnumber, "\033[33m");
+                strcpy(crnegnum, "\033[33m");
+                strcpy(crdate,   "\033[33m");
+                strcpy(crstring, "\033[36m");
+                strcpy(crconst,  "\033[35m");
+                strcpy(crstderr, "\033[34m");
+                strcpy(crwarn,   "\033[1;31m");
+                strcpy(crerror,  "\033[41;37m");
+            }
         }
         normalsize = strlen(crnormal);
         numbersize = strlen(crnumber);

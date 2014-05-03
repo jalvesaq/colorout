@@ -151,92 +151,142 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
     if(length(error) < 3)
         error <- c(rep(0, 3 - length(error)), error)
 
-    crnormal <- "\033[0"
-    crnumber <- "\033[0"
-    crnegnum <- "\033[0"
-    crdate   <- "\033[0"
-    crstring <- "\033[0"
-    crconst  <- "\033[0"
-    crstderr <- "\033[0"
-    crwarn   <- "\033[0"
-    crerror  <- "\033[0"
+    if(Sys.getenv("TERM") == "fbterm" && maxcolor == 255){
+        crnormal <- ""
+        crnumber <- ""
+        crnegnum <- ""
+        crdate   <- ""
+        crstring <- ""
+        crconst  <- ""
+        crstderr <- ""
+        crwarn   <- ""
+        crerror  <- ""
 
-    if(normal[1])
-        crnormal <- paste(crnormal, ";", normal[1], sep = "")
-    if(number[1])
-        crnumber <- paste(crnumber, ";", number[1], sep = "")
-    if(negnum[1])
-        crnegnum <- paste(crnegnum, ";", negnum[1], sep = "")
-    if(date[1])
-        crdate <- paste(crdate, ";", date[1], sep = "")
-    if(string[1])
-        crstring <- paste(crstring, ";", string[1], sep = "")
-    if(const[1])
-        crconst <- paste(crconst, ";", const[1], sep = "")
-    if(stderror[1])
-        crstderr <- paste(crstderr, ";", stderror[1], sep = "")
-    if(warn[1])
-        crwarn <- paste(crwarn, ";", warn[1], sep = "")
-    if(error[1])
-        crerror <- paste(crerror, ";", error[1], sep = "")
+        if(normal[2])
+            crnormal <- paste0("\033[2;", normal[2], "}")
+        if(number[2])
+            crnumber <- paste0("\033[2;", number[2], "}")
+        if(negnum[2])
+            crnegnum <- paste0("\033[2;", negnum[2], "}")
+        if(date[2])
+            crdate <-   paste0("\033[2;", date[2], "}")
+        if(string[2])
+            crstring <- paste0("\033[2;", string[2], "}")
+        if(const[2])
+            crconst <-  paste0("\033[2;", const[2], "}")
+        if(stderror[2])
+            crstderr <- paste0("\033[2;", stderr[2], "}")
+        if(warn[2])
+            crwarn <-   paste0("\033[2;", warn[2], "}")
+        if(error[2])
+            crerror <-  paste0("\033[2;", error[2], "}")
 
-    if(maxcolor == 255)
-        txt2 <- ";48;05;"
-    else
-        txt2 <- ";4"
+        if(normal[3])
+            crnormal <- paste0(crnormal, "\033[1;", normal[3], "}")
+        if(number[3])
+            crnumber <- paste0(crnumber, "\033[1;", number[3], "}")
+        if(negnum[3])
+            crnegnum <- paste0(crnegnum, "\033[1;", negnum[3], "}")
+        if(date[3])
+            crdate <-   paste0(crdate,   "\033[1;", date[3], "}")
+        if(string[3])
+            crstring <- paste0(crstring, "\033[1;", string[3], "}")
+        if(const[3])
+            crconst <-  paste0(crconst,  "\033[1;", const[3], "}")
+        if(stderror[3])
+            crstderr <- paste0(crstderr, "\033[1;", stderror[3], "}")
+        if(warn[3])
+            crwarn <-   paste0(crwarn,   "\033[1;", warn[3], "}")
+        if(error[3])
+            crerror <-  paste0(crerror,  "\033[1;", error[3], "}")
+    } else {
+        crnormal <- "\033[0"
+        crnumber <- "\033[0"
+        crnegnum <- "\033[0"
+        crdate   <- "\033[0"
+        crstring <- "\033[0"
+        crconst  <- "\033[0"
+        crstderr <- "\033[0"
+        crwarn   <- "\033[0"
+        crerror  <- "\033[0"
 
-    if(normal[2])
-        crnormal <- paste(crnormal, txt2, normal[2], sep = "")
-    if(number[2])
-        crnumber <- paste(crnumber, txt2, number[2], sep = "")
-    if(negnum[2])
-        crnegnum <- paste(crnegnum, txt2, negnum[2], sep = "")
-    if(date[2])
-        crdate <-   paste(crdate,   txt2, date[2], sep = "")
-    if(string[2])
-        crstring <- paste(crstring, txt2, string[2], sep = "")
-    if(const[2])
-        crconst <-  paste(crconst,  txt2, const[2], sep = "")
-    if(stderror[2])
-        crstderr <- paste(crstderr, txt2, stderror[2], sep = "")
-    if(warn[2])
-        crwarn <-   paste(crwarn,   txt2, warn[2], sep = "")
-    if(error[2])
-        crerror <-  paste(crerror,  txt2, error[2], sep = "")
+        if(normal[1])
+            crnormal <- paste0(crnormal, ";", normal[1])
+        if(number[1])
+            crnumber <- paste0(crnumber, ";", number[1])
+        if(negnum[1])
+            crnegnum <- paste0(crnegnum, ";", negnum[1])
+        if(date[1])
+            crdate <- paste0(crdate, ";", date[1])
+        if(string[1])
+            crstring <- paste0(crstring, ";", string[1])
+        if(const[1])
+            crconst <- paste0(crconst, ";", const[1])
+        if(stderror[1])
+            crstderr <- paste0(crstderr, ";", stderror[1])
+        if(warn[1])
+            crwarn <- paste0(crwarn, ";", warn[1])
+        if(error[1])
+            crerror <- paste0(crerror, ";", error[1])
 
-    if(maxcolor == 255)
-        txt3 <- ";38;05;"
-    else
-        txt3 <- ";3"
+        if(maxcolor == 255)
+            txt2 <- ";48;5;"
+        else
+            txt2 <- ";4"
 
-    if(normal[3])
-        crnormal <- paste(crnormal, txt3, normal[3], sep = "")
-    if(number[3])
-        crnumber <- paste(crnumber, txt3, number[3], sep = "")
-    if(negnum[3])
-        crnegnum <- paste(crnegnum, txt3, negnum[3], sep = "")
-    if(date[3])
-        crdate <-   paste(crdate,   txt3, date[3], sep = "")
-    if(string[3])
-        crstring <- paste(crstring, txt3, string[3], sep = "")
-    if(const[3])
-        crconst <-  paste(crconst,  txt3, const[3], sep = "")
-    if(stderror[3])
-        crstderr <- paste(crstderr, txt3, stderror[3], sep = "")
-    if(warn[3])
-        crwarn <-   paste(crwarn,   txt3, warn[3], sep = "")
-    if(error[3])
-        crerror <-  paste(crerror,  txt3, error[3], sep = "")
+        if(normal[2])
+            crnormal <- paste0(crnormal, txt2, normal[2])
+        if(number[2])
+            crnumber <- paste0(crnumber, txt2, number[2])
+        if(negnum[2])
+            crnegnum <- paste0(crnegnum, txt2, negnum[2])
+        if(date[2])
+            crdate <-   paste0(crdate,   txt2, date[2])
+        if(string[2])
+            crstring <- paste0(crstring, txt2, string[2])
+        if(const[2])
+            crconst <-  paste0(crconst,  txt2, const[2])
+        if(stderror[2])
+            crstderr <- paste0(crstderr, txt2, stderror[2])
+        if(warn[2])
+            crwarn <-   paste0(crwarn,   txt2, warn[2])
+        if(error[2])
+            crerror <-  paste0(crerror,  txt2, error[2])
 
-    crnormal <- paste(crnormal, "m", sep = "")
-    crnumber <- paste(crnumber, "m", sep = "")
-    crnegnum <- paste(crnegnum, "m", sep = "")
-    crdate   <- paste(crdate,   "m", sep = "")
-    crstring <- paste(crstring, "m", sep = "")
-    crconst  <- paste(crconst,  "m", sep = "")
-    crstderr <- paste(crstderr, "m", sep = "")
-    crwarn   <- paste(crwarn,   "m", sep = "")
-    crerror  <- paste(crerror,  "m", sep = "")
+        if(maxcolor == 255)
+            txt3 <- ";38;5;"
+        else
+            txt3 <- ";3"
+
+        if(normal[3])
+            crnormal <- paste0(crnormal, txt3, normal[3])
+        if(number[3])
+            crnumber <- paste0(crnumber, txt3, number[3])
+        if(negnum[3])
+            crnegnum <- paste0(crnegnum, txt3, negnum[3])
+        if(date[3])
+            crdate <-   paste0(crdate,   txt3, date[3])
+        if(string[3])
+            crstring <- paste0(crstring, txt3, string[3])
+        if(const[3])
+            crconst <-  paste0(crconst,  txt3, const[3])
+        if(stderror[3])
+            crstderr <- paste0(crstderr, txt3, stderror[3])
+        if(warn[3])
+            crwarn <-   paste0(crwarn,   txt3, warn[3])
+        if(error[3])
+            crerror <-  paste0(crerror,  txt3, error[3])
+
+        crnormal <- paste0(crnormal, "m")
+        crnumber <- paste0(crnumber, "m")
+        crnegnum <- paste0(crnegnum, "m")
+        crdate   <- paste0(crdate,   "m")
+        crstring <- paste0(crstring, "m")
+        crconst  <- paste0(crconst,  "m")
+        crstderr <- paste0(crstderr, "m")
+        crwarn   <- paste0(crwarn,   "m")
+        crerror  <- paste0(crerror,  "m")
+    }
 
     .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate, crstring,
        crconst, crstderr, crwarn, crerror, as.integer(verbose), PACKAGE="colorout")

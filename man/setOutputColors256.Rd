@@ -55,6 +55,10 @@ setOutputColors256(normal = 40, number = 214, negnum = 209, date = 179,
   or \code{"Warning"} (or their translations, if not running in an English
   locale).
  
+  If the \samp{TERM} environment variable is \code{"fbterm"}, fbterm escape
+  codes will be used instead of the ANSI ones and the format values will be
+  ignored.
+
 }
 \value{
   NULL.
@@ -71,5 +75,5 @@ setOutputColors256(normal = c(0, 0, 18), number = c(0, 0, 90),
 # Color schemes for black background:
 setOutputColors256(normal = 39, number = 51, negnum = 183, date = 43,
                    string = 79, const = 75)
-setOutputColors256(202, 214, 209, 184, 79, 179)
+setOutputColors256(202, 214, 209, 184, 172, 179)
 }
