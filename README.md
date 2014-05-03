@@ -12,4 +12,7 @@ library(devtools)
 install_github('jalvesaq/colorout')
 ```
 
+Released versions are available at
+http://www.lepem.ufc.br/jaa/colorout.html
+
 [devtools]: http://cran.r-project.org/web/packages/devtools/index.html
