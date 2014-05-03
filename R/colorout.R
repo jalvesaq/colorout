@@ -228,28 +228,26 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
     if(error[3])
         crerror <-  paste(crerror,  txt3, error[3], sep = "")
 
-    list(crnormal = paste(crnormal, "m", sep = ""),
-         crnumber = paste(crnumber, "m", sep = ""),
-         crnegnum = paste(crnegnum, "m", sep = ""),
-         crdate   = paste(crdate,   "m", sep = ""),
-         crstring = paste(crstring, "m", sep = ""),
-         crconst  = paste(crconst,  "m", sep = ""),
-         crstderr = paste(crstderr, "m", sep = ""),
-         crwarn   = paste(crwarn,   "m", sep = ""),
-         crerror  = paste(crerror,  "m", sep = ""))
+    crnormal <- paste(crnormal, "m", sep = "")
+    crnumber <- paste(crnumber, "m", sep = "")
+    crnegnum <- paste(crnegnum, "m", sep = "")
+    crdate   <- paste(crdate,   "m", sep = "")
+    crstring <- paste(crstring, "m", sep = "")
+    crconst  <- paste(crconst,  "m", sep = "")
+    crstderr <- paste(crstderr, "m", sep = "")
+    crwarn   <- paste(crwarn,   "m", sep = "")
+    crerror  <- paste(crerror,  "m", sep = "")
+
+    .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate, crstring,
+       crconst, crstderr, crwarn, crerror, as.integer(verbose), PACKAGE="colorout")
 }
 
 setOutputColors256 <- function(normal = 40, number = 214, negnum = 209, date = 179, string = 85,
                                const = 35, stderror = 33, warn = c(1, 0, 1),
                                error = c(1, 15), verbose = TRUE)
 {
-    ansicolors <- number_to_ansi_color(normal, number, negnum, date, string, const, stderror, warn, error, verbose, 255)
-
-    with(ansicolors, 
-         .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate,
-            crstring, crconst, crstderr, crwarn, crerror, as.integer(verbose),
-            PACKAGE="colorout"))
-
+    number_to_ansi_color(normal, number, negnum, date, string, const,
+                         stderror, warn, error, verbose, 255)
     return (invisible(NULL))
 }
 
@@ -258,13 +256,8 @@ setOutputColors <- function(normal = 2, number = 3, negnum = 3, date = 3, string
                             error = c(1, 7), verbose = TRUE)
     
 {
-    ansicolors <- number_to_ansi_color(normal, number, negnum, date, string, const, stderror, warn, error, verbose, 8)
-
-    with(ansicolors, 
-         .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate,
-            crstring, crconst, crstderr, crwarn, crerror, as.integer(verbose),
-            PACKAGE="colorout"))
-
+    number_to_ansi_color(normal, number, negnum, date, string, const,
+                         stderror, warn, error, verbose, 8)
     return(invisible(NULL))
 }
 
@@ -317,6 +310,8 @@ show256Colors <- function(outfile = "/tmp/table256.html")
     sink(file = outfile)
     cat("<html>\n<head>\n  <title>256 terminal emulator colors</title>\n</head>\n")
     cat("<body bgcolor=\"#000000\">\n")
+    cat("\n<p>&nbsp;</p>\n\n")
+    cat("<p><font color=\"#DDDDDD\">Hover the mouse over the table cells to see the color numbers:</font></p>\n")
     cat("\n<p>&nbsp;</p>\n\n")
     cat("<table>\n")
     cat("<tr height=\"20\">\n  ")
