@@ -288,6 +288,21 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                     i++;
                     j++;
                 }
+                if((len - i) > 8 && bbuf[i] == ' ' &&
+                        bbuf[i+1] >= '0' && bbuf[i+1] <= '2' &&
+                        bbuf[i+2] >= '0' && bbuf[i+2] <= '9' &&
+                        bbuf[i+3] == ':' &&
+                        bbuf[i+4] >= '0' && bbuf[i+4] <= '5' &&
+                        bbuf[i+5] >= '0' && bbuf[i+5] <= '9' &&
+                        bbuf[i+6] == ':' &&
+                        bbuf[i+7] >= '0' && bbuf[i+7] <= '5' &&
+                        bbuf[i+8] >= '0' && bbuf[i+8] <= '9'){
+                    for(int k = 0; k < 9; k++){
+                        newbuf[j] = bbuf[i];
+                        i++;
+                        j++;
+                    }
+                }
                 strcat(newbuf, crnormal);
                 j += normalsize;
             } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len)){
