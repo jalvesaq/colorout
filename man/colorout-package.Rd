@@ -30,6 +30,7 @@ Colorize R output on terminal emulators
   The package contains a C library with a function that replaces the default
   Rstd_WriteConsoleEx which, when enabled, is responsible for printing
   messages in the Console when R is running in interactive mode.
+  R should be built against libreadline since libedit may cause issues.
 
   The function that enables the colorization of R output is \link{ColorOut},
   and it is called automatically when the package is loaded. However, it will
