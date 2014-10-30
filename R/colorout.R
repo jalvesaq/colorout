@@ -38,10 +38,13 @@ testTermForColorOut <- function()
     if(interactive() == FALSE)
         return(FALSE)
 
-    termenv <- Sys.getenv("TERM")
+    if(isatty(stdout()) == FALSE)
+        return(FALSE)
 
     if(Sys.getenv("RSTUDIO") != "")
         return(FALSE)
+
+    termenv <- Sys.getenv("TERM")
 
     if(termenv != "" && termenv != "dumb")
         return(TRUE)
