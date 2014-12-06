@@ -1,2 +1,3 @@
 
-export(ColorOut, noColorOut, setOutputColors, setOutputColors256, show256Colors)
+export("ColorOut", "noColorOut", "setOutputColors", "setOutputColors256",
+"show256Colors", "setZero", "unsetZero")

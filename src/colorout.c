@@ -1,11 +1,13 @@
 /* This file is part of colorout R package
-**
-** It is distributed under the GNU General Public License.
-** See the file ../LICENSE for details.
-** 
-** (c) 2011 Jakson Aquino: jalvesaq@gmail.com
-**
-***************************************************************/
+ **
+ ** It is distributed under the GNU General Public License.
+ ** See the file ../LICENSE for details.
+ **
+ ** Authors:
+ ** (c) 2011-2014 Jakson Aquino: jalvesaq@gmail.com
+ ** (c)      2014 Dominique-Laurent Couturier: dlc48@medschl.cam.ac.uk
+ **
+ ***************************************************************/
 
 
 #include <R.h>  /* to include Rconfig.h */
@@ -38,10 +40,15 @@ static void *save_R_Outputfile;
 static void *save_R_Consolefile;
 
 static char crnormal[32], crnumber[32], crnegnum[32], crdate[32], crstring[32],
-     crconst[32], crstderr[32], crwarn[32], crerror[32];
-static int normalsize, numbersize, negnumsize, datesize, stringsize, constsize;
+            crconst[32], crstderr[32], crwarn[32], crerror[32],
+            crlogicalF[32], crlogicalT[32], crinfinite[32], crzero[32];
+static int normalsize, numbersize, negnumsize, datesize, stringsize, constsize,
+           logicalTsize, logicalFsize, infinitesize, zerosize;
 static int colors_initialized = 0;
 static int colorout_initialized = 0;
+
+static double too_small = 1e-12;
+static int hlzero = 0;
 
 static int isnumber(const char * b, int i, int len)
 {
@@ -65,9 +72,102 @@ static int isnumber(const char * b, int i, int len)
     return 1;
 }
 
+
+static int iszero(const char * b, int i, int len)
+{
+    char *charnum, *stopstring;
+    double x;
+    int j;
+    j = i;
+    charnum = (char*)calloc(sizeof(char),len);
+    while(i<len){
+        charnum[i-j] = b[i];
+        i++;
+    }
+    x = strtod(charnum, &stopstring);
+    free(charnum);
+    if (x < too_small)
+        return 1;
+    else
+        return 0;
+}
+
+
+static int isdate(const char * b, int i, int len)
+{
+    if((len-i)>9){
+        /* YYYYxMMxDD or YYYYxDDxMM */
+        if(b[i+4] == b[i+7] && (b[i+4]=='-'||b[i+4]=='/')){
+            if(b[i]   >= '1' && b[i]   <= '9' &&
+                    b[i+1] >= '0' && b[i+1] <= '9' &&
+                    b[i+2] >= '0' && b[i+2] <= '9' &&
+                    b[i+3] >= '0' && b[i+3] <= '9' &&
+                    b[i+5] >= '0' && b[i+5] <= '3' &&
+                    b[i+6] >= '0' && b[i+6] <= '9' &&
+                    b[i+8] >= '0' && b[i+8] <= '3' &&
+                    b[i+9] >= '0' && b[i+9] <= '9')
+                return 1;
+            else
+                return 0;
+            /* DDxMMxYYYY or MMxDDxYYYY  */
+        } else if(b[i+2] == b[i+5] && (b[i+2]=='-'||b[i+2]=='/')){
+            if(b[i]   >= '0' && b[i]   <= '3' &&
+                    b[i+1] >= '0' && b[i+1] <= '9' &&
+                    b[i+3] >= '0' && b[i+3] <= '3' &&
+                    b[i+4] >= '0' && b[i+4] <= '9' &&
+                    b[i+6] >= '1' && b[i+6] <= '9' &&
+                    b[i+7] >= '0' && b[i+7] <= '9' &&
+                    b[i+8] >= '0' && b[i+8] <= '9' &&
+                    b[i+9] >= '0' && b[i+9] <= '9')
+                return 1;
+            else
+                return 0;
+        } else
+            return 0;
+        /* wrong length */
+    } else
+        return 0;
+}
+
+
+static int istime(const char * b, int i, int len)
+{
+    if((len-i)>7){
+        /* HH:MM:SS */
+        if(b[i+2] == ':' && b[i+5] == ':'){
+            if(b[i  ] >= '0' && b[i]   <= '9' &&
+                    b[i+1] >= '0' && b[i+1] <= '9' &&
+                    b[i+3] >= '0' && b[i+3] <= '5' &&
+                    b[i+4] >= '0' && b[i+4] <= '9' &&
+                    b[i+6] >= '0' && b[i+6] <= '5' &&
+                    b[i+7] >= '0' && b[i+7] <= '9')
+                return 1;
+            else
+                return 0;
+        } else
+            return 0;
+        /* wrong length */
+    } else
+        return 0;
+}
+
+
+void colorout_UnsetZero()
+{
+    hlzero = 0;
+}
+
+void colorout_SetZero(double *zr)
+{
+    hlzero = 1;
+    too_small = *zr;
+}
+
+
 void colorout_SetColors(char **normal, char **number, char **negnum,
         char **datenum, char **string, char **constant, char **stderror,
-        char **warn, char **error, int *verbose)
+        char **warn, char **error, char **logicalT, char **logicalF,
+        char **infinite, char **zero, int *verbose, int *newline)
 {
     strcpy(crnormal, normal[0]);
     strcpy(crnumber, number[0]);
@@ -78,6 +178,10 @@ void colorout_SetColors(char **normal, char **number, char **negnum,
     strcpy(crstderr, stderror[0]);
     strcpy(crwarn,   warn[0]);
     strcpy(crerror,  error[0]);
+    strcpy(crlogicalT, logicalT[0]);
+    strcpy(crlogicalF, logicalF[0]);
+    strcpy(crinfinite, infinite[0]);
+    strcpy(crzero,     zero[0]);
 
     normalsize = strlen(crnormal);
     numbersize = strlen(crnumber);
@@ -85,10 +189,28 @@ void colorout_SetColors(char **normal, char **number, char **negnum,
     datesize = strlen(crdate);
     stringsize = strlen(crstring);
     constsize = strlen(crconst);
+    logicalTsize = strlen(crlogicalT);
+    logicalFsize = strlen(crlogicalF);
+    infinitesize = strlen(crinfinite);
+    zerosize     = strlen(crzero);
 
-    if(*verbose)
-      printf("%snormal\033[0m, %snumber\033[0m, %snegnum\033[0m, %sdate\033[0m, %sstring\033[0m, %sconst\033[0m, %sstderror\033[0m, %swarn\033[0m, %serror\033[0m.\n",
-          crnormal, crnumber, crnegnum, crdate, crstring, crconst, crstderr, crwarn, crerror);
+    if(*verbose){
+        char buf1[64];
+        char buf2[512];
+        char buf3[512];
+        sprintf(buf1, "%snormal\033[0m, ", crnormal);
+        if(hlzero)
+            sprintf(buf2, "%sx[x<=-%g]\033[0m, %sx[abs(x)<%g]\033[0m, %sx[x>=%g]\033[0m, %s19/01/2038 03:14:07\033[0m,",
+                    crnegnum, too_small, crzero, too_small, crnumber, too_small, crdate);
+        else
+            sprintf(buf2, "%sx[x<0]\033[0m, %sx[x>=0]\033[0m, %s19/01/2038 03:14:07\033[0m,", crnegnum, crnumber, crdate);
+        sprintf(buf3, "%s\"string\"\033[0m, %sNA/NaN/NULL\033[0m, %sFALSE\033[0m, %sTRUE\033[0m, %sInf\033[0m, %sstderror\033[0m, %swarn\033[0m, %serror\033[0m.\n",
+                crstring, crconst, crlogicalF, crlogicalT, crinfinite, crstderr, crwarn, crerror);
+        if(*newline)
+            printf("%s%s\n%s", buf1, buf2, buf3);
+        else
+            printf("%s%s %s", buf1, buf2, buf3);
+    }
 }
 
 char *colorout_make_bigger(char *ptr, int *len)
@@ -102,6 +224,8 @@ char *colorout_make_bigger(char *ptr, int *len)
     return(nnbuf);
 }
 
+
+/* this function color prints the centent of 'buf', of length 'len' and type 'otype' */
 void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
 {
     char *newbuf, *bbuf;
@@ -160,8 +284,8 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
         /* Put the newline back */
         if(neednl)
             fprintf(stderr, "\n");
-
         fflush(stderr);
+        /* other type (i.e., non warning/error(s)). could be numbers, date, aso. */
     } else {
         l = len + 1024;
         newbuf = (char*)calloc(sizeof(char), l);
@@ -169,9 +293,11 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
         strcpy(newbuf, crnormal);
         i = 0;
         j = normalsize;
+        /* for all i smaller than obj length */
         while(i < len){
             if(j >= l)
                 newbuf = colorout_make_bigger(newbuf, &l);
+            /* NORMAL */
             if(bbuf[i] == '"'){
                 strcat(newbuf, crstring);
                 j += stringsize;
@@ -189,50 +315,57 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
+                /* NULL */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'U' && bbuf[i+2] == 'L' && bbuf[i+3] == 'L'
                     && (bbuf[i+4] < 'A' || (bbuf[i+4] > 'Z' && bbuf[i+4] < 'a') || bbuf[i+4] > 'z')){
                 sprintf(piece, "%sNULL%s", crconst, crnormal);
                 strcat(newbuf, piece);
                 i += 4;
                 j += 4 + normalsize + constsize;
+                /* TRUE */
             } else if(bbuf[i] == 'T' && bbuf[i+1] == 'R' && bbuf[i+2] == 'U' && bbuf[i+3] == 'E'
                     && (bbuf[i+4] < 'A' || (bbuf[i+4] > 'Z' && bbuf[i+4] < 'a') || bbuf[i+4] > 'z')){
-                sprintf(piece, "%sTRUE%s", crconst, crnormal);
+                sprintf(piece, "%sTRUE%s", crlogicalT, crnormal);
                 strcat(newbuf, piece);
                 i += 4;
-                j += 4 + normalsize + constsize;
+                j += 4 + normalsize + logicalTsize;
+                /* FALSE */
             } else if(bbuf[i] == 'F' && bbuf[i+1] == 'A' && bbuf[i+2] == 'L' && bbuf[i+3] == 'S' && bbuf[i+4] == 'E'
                     && (bbuf[i+5] < 'A' || (bbuf[i+5] > 'Z' && bbuf[i+5] < 'a') || bbuf[i+5] > 'z')){
-                sprintf(piece, "%sFALSE%s", crconst, crnormal);
+                sprintf(piece, "%sFALSE%s", crlogicalF, crnormal);
                 strcat(newbuf, piece);
                 i += 5;
-                j += 5 + normalsize + constsize;
+                j += 5 + normalsize + logicalFsize;
+                /* NA */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'A'
                     && (bbuf[i+2] < 'A' || (bbuf[i+2] > 'Z' && bbuf[i+2] < 'a') || bbuf[i+2] > 'z')){
                 sprintf(piece, "%sNA%s", crconst, crnormal);
                 strcat(newbuf, piece);
                 i += 2;
                 j += 2 + normalsize + constsize;
+                /* Inf */
             } else if(bbuf[i] == 'I' && bbuf[i+1] == 'n' && bbuf[i+2] == 'f'
                     && (bbuf[i+3] < 'A' || (bbuf[i+3] > 'Z' && bbuf[i+3] < 'a') || bbuf[i+3] > 'z')){
                 if(i > 0 && bbuf[i-1] == '-'){
                     newbuf[j-1] = 0;
-                    sprintf(piece, "%s-Inf%s", crconst, crnormal);
+                    sprintf(piece, "%s-Inf%s", crinfinite, crnormal);
                     strcat(newbuf, piece);
                 } else {
-                    sprintf(piece, "%sInf%s", crconst, crnormal);
+                    sprintf(piece, "%sInf%s", crinfinite, crnormal);
                     strcat(newbuf, piece);
                 }
                 i += 3;
-                j += 3 + normalsize + constsize;
+                j += 3 + normalsize + infinitesize;
+                /* NaN */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'a' && bbuf[i+2] == 'N'
                     && (bbuf[i+3] < 'A' || (bbuf[i+3] > 'Z' && bbuf[i+3] < 'a') || bbuf[i+3] > 'z')){
                 sprintf(piece, "%sNaN%s", crconst, crnormal);
                 strcat(newbuf, piece);
                 i += 3;
                 j += 3 + normalsize + constsize;
+                /* hexadecimal number */
             } else if(bbuf[i] == '0' && bbuf[i+1] == 'x' && ((bbuf[i+2] >= '0' && bbuf[i+2] <= '9') ||
-                            (bbuf[i+2] >= 'a' && bbuf[i+2] <= 'f'))){ /* hexadecimal */
+                        (bbuf[i+2] >= 'a' && bbuf[i+2] <= 'f'))){
                 strcat(newbuf, crnumber);
                 j += numbersize;
                 newbuf[j] = bbuf[i];
@@ -248,55 +381,17 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
-            } else if(bbuf[i] == '-' && (bbuf[i+1] >= '0' && bbuf[i+1] <= '9')){
-                strcat(newbuf, crnegnum); /* negative numbers */
-                j += negnumsize;
-                newbuf[j] = '-';
-                i++;
-                j++;
-                while(i < len && ((bbuf[i] >= '0' && bbuf[i] <= '9') || bbuf[i] == '.' || bbuf[i] == ',')){
-                    if(j >= l)
-                        newbuf = colorout_make_bigger(newbuf, &l);
-                    newbuf[j] = bbuf[i];
-                    i++;
-                    j++;
-                    if(bbuf[i] == 'e' && (i + 2) < len && (bbuf[i+1] == '-' || bbuf[i+1] == '+') && (bbuf[i+2] >= '0' && bbuf[i+2] <= '9')){
-                        newbuf[j] = bbuf[i];
-                        i++;
-                        j++;
-                        newbuf[j] = bbuf[i];
-                        i++;
-                        j++;
-                    }
-                }
-                strcat(newbuf, crnormal);
-                j += normalsize;
-            } else if(bbuf[i] >= '1' && bbuf[i] <= '9' && (len - i) > 9 &&
-                    bbuf[i+1] >= '0' && bbuf[i+1] <= '9' &&
-                    bbuf[i+2] >= '0' && bbuf[i+2] <= '9' &&
-                    bbuf[i+3] >= '0' && bbuf[i+3] <= '9' &&
-                    bbuf[i+4] == '-' &&
-                    bbuf[i+5] >= '0' && bbuf[i+5] <= '9' &&
-                    bbuf[i+6] >= '0' && bbuf[i+6] <= '9' &&
-                    bbuf[i+7] == '-' &&
-                    bbuf[i+8] >= '0' && bbuf[i+8] <= '9' &&
-                    bbuf[i+9] >= '0' && bbuf[i+9] <= '9'){
-                strcat(newbuf, crdate); /* date */
+                /* date YYYYxMMxDD or DDxMMxYYYY */
+            } else if(isdate(bbuf, i, len)){
+                strcat(newbuf, crdate);
                 j += datesize;
                 for(int k = 0; k < 10; k++){
                     newbuf[j] = bbuf[i];
                     i++;
                     j++;
                 }
-                if((len - i) > 8 && bbuf[i] == ' ' &&
-                        bbuf[i+1] >= '0' && bbuf[i+1] <= '2' &&
-                        bbuf[i+2] >= '0' && bbuf[i+2] <= '9' &&
-                        bbuf[i+3] == ':' &&
-                        bbuf[i+4] >= '0' && bbuf[i+4] <= '5' &&
-                        bbuf[i+5] >= '0' && bbuf[i+5] <= '9' &&
-                        bbuf[i+6] == ':' &&
-                        bbuf[i+7] >= '0' && bbuf[i+7] <= '5' &&
-                        bbuf[i+8] >= '0' && bbuf[i+8] <= '9'){
+                /* if time is appended to the date */
+                if(bbuf[i] == ' ' && istime(bbuf, i+1, len)){
                     for(int k = 0; k < 9; k++){
                         newbuf[j] = bbuf[i];
                         i++;
@@ -305,10 +400,27 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
+                /* time */
+            } else if(istime(bbuf, i, len)){
+                strcat(newbuf, crdate);
+                j += datesize;
+                for(int k = 0; k < 8; k++){
+                    newbuf[j] = bbuf[i];
+                    i++;
+                    j++;
+                }
+                strcat(newbuf, crnormal);
+                j += normalsize;
+                /* positive numbers */
             } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len)){
-                strcat(newbuf, crnumber); /* positive numbers */
-                j += numbersize;
-                while(i < len && ((bbuf[i] >= '0' && bbuf[i] <= '9') || bbuf[i] == '.' || bbuf[i] == ',')){
+                if (hlzero && iszero(bbuf, i, len)){
+                    strcat(newbuf, crzero);
+                    j += zerosize;
+                }else{
+                    strcat(newbuf, crnumber);
+                    j += numbersize;
+                }
+                while(i < len && ((bbuf[i] >= '0' && bbuf[i] <= '9') || bbuf[i] == '.')){
                     if(j >= l)
                         newbuf = colorout_make_bigger(newbuf, &l);
                     newbuf[j] = bbuf[i];
@@ -325,6 +437,36 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
+                /* negative numbers */
+            } else if(bbuf[i] == '-' && (bbuf[i+1] >= '0' && bbuf[i+1] <= '9') && isnumber(bbuf, i+1, len)){
+                if (hlzero && iszero(bbuf, i+1, len)){
+                    strcat(newbuf, crzero);
+                    j += zerosize;
+                }else{
+                    strcat(newbuf, crnegnum);
+                    j += negnumsize;
+                }
+                newbuf[j] = '-';
+                i++;
+                j++;
+                while(i < len && ((bbuf[i] >= '0' && bbuf[i] <= '9') || bbuf[i] == '.')){
+                    if(j >= l)
+                        newbuf = colorout_make_bigger(newbuf, &l);
+                    newbuf[j] = bbuf[i];
+                    i++;
+                    j++;
+                    if(bbuf[i] == 'e' && (i + 2) < len && (bbuf[i+1] == '-' || bbuf[i+1] == '+') && (bbuf[i+2] >= '0' && bbuf[i+2] <= '9')){
+                        newbuf[j] = bbuf[i];
+                        i++;
+                        j++;
+                        newbuf[j] = bbuf[i];
+                        i++;
+                        j++;
+                    }
+                }
+                strcat(newbuf, crnormal);
+                j += normalsize;
+                /* 'words' */
             } else if(i < len && ((bbuf[i] >= 'A' && bbuf[i] <= 'Z')
                         || (bbuf[i] >= 'a' && bbuf[i] <= 'z') || bbuf[i] == '.' || bbuf[i] == '_' || (signed char)bbuf[i] < 0)){
                 /* Normal word: get it as a whole */
@@ -336,13 +478,13 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                     i++;
                     j++;
                 }
-            } else { /* anything else */
+                /* anything else */
+            } else {
                 newbuf[j] = bbuf[i];
                 i++;
                 j++;
             }
         }
-
 
         if(neednl)
             printf("%s\033[0m\n", newbuf);
@@ -371,6 +513,10 @@ void colorout_ColorOutput()
             strcpy(crstderr, "\033[1;33}");
             strcpy(crwarn,   "\033[1;1}");
             strcpy(crerror,  "\033[2;1}\033[1;7}");
+            strcpy(crlogicalT, "\033[1;78}");
+            strcpy(crlogicalF, "\033[1;203}");
+            strcpy(crinfinite, "\033[1;39}");
+            strcpy(crzero,     "\033[1;226}");
         } else {
             if(strstr(getenv("TERM"), "256")){
                 strcpy(crnormal, "\033[0;38;5;40m");
@@ -382,6 +528,10 @@ void colorout_ColorOutput()
                 strcpy(crstderr, "\033[0;38;5;33m");
                 strcpy(crwarn,   "\033[0;1;38;5;1m");
                 strcpy(crerror,  "\033[0;48;5;1;38;5;15m");
+                strcpy(crlogicalT, "\033[0;38;5;78m");
+                strcpy(crlogicalF, "\033[0;38;5;203m");
+                strcpy(crinfinite, "\033[0;38;5;39m");
+                strcpy(crzero,     "\033[0;38;5;226m");
             } else {
                 strcpy(crnormal, "\033[32m");
                 strcpy(crnumber, "\033[33m");
@@ -392,6 +542,10 @@ void colorout_ColorOutput()
                 strcpy(crstderr, "\033[34m");
                 strcpy(crwarn,   "\033[1;31m");
                 strcpy(crerror,  "\033[41;37m");
+                strcpy(crlogicalT, "\033[35m");
+                strcpy(crlogicalF, "\033[35m");
+                strcpy(crinfinite, "\033[35m");
+                strcpy(crzero,     "\033[33m");
             }
         }
         normalsize = strlen(crnormal);
@@ -400,6 +554,10 @@ void colorout_ColorOutput()
         datesize = strlen(crdate);
         stringsize = strlen(crstring);
         constsize = strlen(crconst);
+        logicalTsize = strlen(crlogicalT);
+        logicalFsize = strlen(crlogicalF);
+        infinitesize = strlen(crinfinite);
+        zerosize     = strlen(crzero);
         colors_initialized = 1;
     }
 

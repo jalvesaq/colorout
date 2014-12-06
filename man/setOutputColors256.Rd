@@ -6,24 +6,37 @@
   terminal must be capable of displaying 256 colors.
 }
 \usage{
-setOutputColors256(normal = 40, number = 214, negnum = 209, date = 179,
-                   string = 85, const = 35, stderror = 33, warn = c(1, 0, 1),
-                   error = c(1, 15), verbose = TRUE)
+setOutputColors256(normal = 40, negnum = 209, zero = 226,
+                   number = 214, date = 179, string = 85,
+                   const = 35, false = 203, true = 78,
+                   infinite = 39, stderror = 33,
+                   warn = c(1, 0, 1), error = c(1, 15),
+                   verbose = TRUE, zero.limit = NA)
 }
 \arguments{
   \item{normal}{Formating and color of normal text.}
-  \item{number}{Formating and color of numbers.}
   \item{negnum}{Formating and color of negative numbers.}
-  \item{date}{Formating and color of dates (output in the format
-    \samp{yyyy-mm-dd}).}
+  \item{zero}{Formating and color of values being close to 0.}
+  \item{number}{Formating and color of positive numbers.}
+  \item{date}{Formating and color of dates and hours. 
+    For dates, the output format should be \samp{YYYYxMMxDD} or \samp{DDxMMxYYYY}, 
+    where the separator x may equal '-' or '/'. 
+    For hours, the output format should be \samp{HH:MM:SS}.}
   \item{string}{Formating and color of quoted text.}
-  \item{const}{Formating and color of \code{TRUE}, \code{FALSE}, \code{NULL},
-    \code{NA}, \code{NaN} and \code{Inf}.}
+  \item{const}{Formating and color of \code{NULL},
+    \code{NA} and \code{NaN}.}
+  \item{false}{Formating and color of \code{FALSE}.}  
+  \item{true}{Formating and color of \code{TRUE}.}
+  \item{infinite}{Formating and color of  \code{Inf} and \code{-Inf}.}    
   \item{stderror}{Formating and color of text sent to stderr.}
   \item{warn}{Formating and color of warnings.}
   \item{error}{Formating and color of errors.}
   \item{verbose}{Logical value indicating whether to print colored words
     showing the result of the setup.}
+  \item{zero.limit}{The limit below which a value is considered close to 0. If set,
+    the colorizing of zero and values near zero is enabled. You can also use
+    the function \code{\link{setZero}} to set this value at any time and
+    \code{\link{unsetZero}} to disable the colorizing of values near zero.}
 }
 \details{
   The function takes numeric vectors of at most three elements each. The
@@ -73,7 +86,6 @@ setOutputColors256(normal = c(0, 0, 18), number = c(0, 0, 90),
                    string = c(0, 0, 22), const = c(0, 0, 94), stderror = 52)
 
 # Color schemes for black background:
-setOutputColors256(normal = 39, number = 51, negnum = 183, date = 43,
-                   string = 79, const = 75)
-setOutputColors256(202, 214, 209, 184, 172, 179)
+setOutputColors256(normal = 202, number = 214, negnum = 209, date = 184,
+                   string = 172, const = 179, zero.limit = 0.1)
 }

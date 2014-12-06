@@ -1,10 +1,11 @@
 # This file is part of colorout R package
-# 
+#
 # It is distributed under the GNU General Public License.
 # See the file ../LICENSE for details.
-# 
-# (c) 2011 Jakson Aquino: jalvesaq@gmail.com
-# 
+#
+# (c) 2011-2014 Jakson Aquino: jalvesaq@gmail.com
+# (c)      2014 Dominique-Laurent Couturier: dlc48@medschl.cam.ac.uk
+#
 ###############################################################
 
 
@@ -13,16 +14,20 @@
 
     if(is.null(getOption("colorout.anyterm")))
         options(colorout.anyterm = FALSE)
-    if(is.null(getOption("colorout.emacs")))
-        options(colorout.emacs = FALSE)
     if(is.null(getOption("colorout.dumb")))
         options(colorout.dumb = FALSE)
     if(is.null(getOption("colorout.verbose")))
-        options(colorout.verbose = 1)
+        options(colorout.verbose = 0)
 
-    if(testTermForColorOut() == FALSE)
-        return(invisible(NULL))
-    ColorOut()
+    msg <- testTermForColorOut()
+    if(msg == "OK")
+        ColorOut()
+    else if(getOption("colorout.verbose") > 0){
+        msg <- paste("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.",
+                     msg)
+        warning(msg, call. = FALSE, immediate. = TRUE)
+    }
+    return(invisible(NULL))
 }
 
 .onUnload <- function(libpath) {
@@ -33,46 +38,27 @@
 testTermForColorOut <- function()
 {
     if(getOption("colorout.anyterm"))
-        return(TRUE)
+        return("OK")
 
     if(interactive() == FALSE)
-        return(FALSE)
+        return("Not in an interactive session.\n")
 
     if(isatty(stdout()) == FALSE)
-        return(FALSE)
+        return("isatty(stdout()) returned FALSE.\n")
 
     if(Sys.getenv("RSTUDIO") != "")
-        return(FALSE)
+        return("Inside Rstudio.\n")
 
     termenv <- Sys.getenv("TERM")
 
     if(termenv != "" && termenv != "dumb")
-        return(TRUE)
+        return("OK")
 
-    if(Sys.getenv("INSIDE_EMACS") != "" && getOption("colorout.emacs") == TRUE)
-        return(TRUE)
-
-    msg <- sprintf(gettext("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.\nSys.getenv('TERM') returned '%s'.",
-                           domain = "R-colorout"), termenv)
-    if(termenv == ""){
-        if(options("colorout.verbose") > 0)
-            warning(msg, call. = FALSE, immediate. = TRUE)
-        return(FALSE)
-    }
-
-    if(termenv == "dumb"){
+    if(termenv == "dumb")
         if(getOption("colorout.dumb"))
-            return(TRUE)
-        if(Sys.getenv("INSIDE_EMACS") != "")
-            msg <- paste(msg,
-                         gettext("Please, do ?ColorOut to know how to enable the colorizing of R output on Emacs+ESS.",
-                                 domain = "R-colorout"), sep = "\n")
-        if(options("colorout.verbose") > 0)
-            warning(msg, call. = FALSE, immediate. = TRUE)
-        return(FALSE)
-    }
+            return("OK")
 
-    return(TRUE)
+    return(paste0("Sys.getenv('TERM') returned '", Sys.getenv("TERM"), "'."))
 }
 
 ColorOut <- function()
@@ -92,7 +78,9 @@ noColorOut <- function()
 }
 
 number_to_ansi_color <- function(normal, number, negnum, date, string,
-                               const, stderror, warn, error, verbose, maxcolor)
+                                 const, stderror, warn, error, verbose,
+                                 true, false, infinite, zero,
+                                 maxcolor, newline)
 {
     if(!is.numeric(normal))
         stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "normal", domain = "R-colorout"))
@@ -114,6 +102,14 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
         stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
     if(!is.logical(verbose))
         stop(gettextf("'verbose' must be of mode 'logical'.", domain = "R-colorout"))
+    if(!is.numeric(true))
+        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
+    if(!is.numeric(false))
+        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
+    if(!is.numeric(infinite))
+        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
+    if(!is.numeric(zero))
+        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "number", domain = "R-colorout"))
 
     const[const > maxcolor]   <- 0
     date[date > maxcolor]     <- 0
@@ -124,6 +120,10 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
     string[string > maxcolor] <- 0
     warn[warn > maxcolor]     <- 0
     stderror[stderror > maxcolor] <- 0
+    true[true > maxcolor] <- 0
+    false[false > maxcolor] <- 0
+    infinite[infinite > maxcolor] <- 0
+    zero[zero > maxcolor]         <- 0
 
     const[const < 0]   <- 0
     date[date < 0]     <- 0
@@ -134,6 +134,10 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
     string[string < 0] <- 0
     warn[warn < 0]     <- 0
     stderror[stderror < 0] <- 0
+    true[true < 0] <- 0
+    false[false < 0] <- 0
+    infinite[infinite < 0] <- 0
+    zero[zero < 0]         <- 0
 
     if(length(normal) < 3)
         normal <- c(rep(0, 3 - length(normal)), normal)
@@ -153,7 +157,16 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
         warn <- c(rep(0, 3 - length(warn)), warn)
     if(length(error) < 3)
         error <- c(rep(0, 3 - length(error)), error)
+    if(length(true) < 3)
+        true <- c(rep(0, 3 - length(true)), true)
+    if(length(false) < 3)
+        false <- c(rep(0, 3 - length(false)), false)
+    if(length(infinite) < 3)
+        infinite <- c(rep(0, 3 - length(infinite)), infinite)
+    if(length(zero) < 3)
+        zero <- c(rep(0, 3 - length(zero)), zero)
 
+    ## if "fbterm" && maxcolour = 255 (osx has "xterm-256color")
     if(Sys.getenv("TERM") == "fbterm" && maxcolor == 255){
         crnormal <- ""
         crnumber <- ""
@@ -164,6 +177,10 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
         crstderr <- ""
         crwarn   <- ""
         crerror  <- ""
+        crtrue <- ""
+        crfalse <- ""
+        crinfinite <- ""
+        crzero     <- ""
 
         if(normal[2])
             crnormal <- paste0("\033[2;", normal[2], "}")
@@ -183,6 +200,14 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
             crwarn <-   paste0("\033[2;", warn[2], "}")
         if(error[2])
             crerror <-  paste0("\033[2;", error[2], "}")
+        if(true[2])
+            crtrue <- paste0("\033[2;", true[2], "}")
+        if(false[2])
+            crfalse <- paste0("\033[2;", false[2], "}")
+        if(infinite[2])
+            crinfinite <- paste0("\033[2;", infinite[2], "}")
+        if(zero[2])
+            crzero <- paste0("\033[2;", zero[2], "}")
 
         if(normal[3])
             crnormal <- paste0(crnormal, "\033[1;", normal[3], "}")
@@ -202,6 +227,17 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
             crwarn <-   paste0(crwarn,   "\033[1;", warn[3], "}")
         if(error[3])
             crerror <-  paste0(crerror,  "\033[1;", error[3], "}")
+        if(true[3])
+            crtrue <- paste0(crtrue, "\033[1;", true[3], "}")
+        if(false[3])
+            crfalse <- paste0(crfalse, "\033[1;", false[3], "}")
+        if(infinite[3])
+            crinfinite <- paste0(crinfinite, "\033[1;", infinite[3], "}")
+        if(zero[3])
+            crzero <- paste0(crzero, "\033[1;", zero[3], "}")
+
+
+        ## if !("fbterm" && maxcolour = 255) (i.e., osx...)
     } else {
         crnormal <- "\033[0"
         crnumber <- "\033[0"
@@ -212,6 +248,10 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
         crstderr <- "\033[0"
         crwarn   <- "\033[0"
         crerror  <- "\033[0"
+        crtrue <- "\033[0"
+        crfalse <- "\033[0"
+        crinfinite <- "\033[0"
+        crzero     <- "\033[0"
 
         if(normal[1])
             crnormal <- paste0(crnormal, ";", normal[1])
@@ -231,6 +271,14 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
             crwarn <- paste0(crwarn, ";", warn[1])
         if(error[1])
             crerror <- paste0(crerror, ";", error[1])
+        if(true[1])
+            crtrue <- paste0(crtrue, ";", true[1])
+        if(false[1])
+            crfalse <- paste0(crfalse, ";", false[1])
+        if(infinite[1])
+            crinfinite <- paste0(crinfinite, ";", infinite[1])
+        if(zero[1])
+            crzero <- paste0(crzero, ";", zero[1])
 
         if(maxcolor == 255)
             txt2 <- ";48;5;"
@@ -255,6 +303,14 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
             crwarn <-   paste0(crwarn,   txt2, warn[2])
         if(error[2])
             crerror <-  paste0(crerror,  txt2, error[2])
+        if(true[2])
+            crtrue <- paste0(crtrue, txt2, true[2])
+        if(false[2])
+            crfalse <- paste0(crfalse, txt2, false[2])
+        if(infinite[2])
+            crinfinite <- paste0(crinfinite, txt2, infinite[2])
+        if(zero[2])
+            crzero <- paste0(crzero, txt2, zero[2])
 
         if(maxcolor == 255)
             txt3 <- ";38;5;"
@@ -279,6 +335,14 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
             crwarn <-   paste0(crwarn,   txt3, warn[3])
         if(error[3])
             crerror <-  paste0(crerror,  txt3, error[3])
+        if(true[3])
+            crtrue <- paste0(crtrue, txt3, true[3])
+        if(false[3])
+            crfalse <- paste0(crfalse, txt3, false[3])
+        if(infinite[3])
+            crinfinite <- paste0(crinfinite, txt3, infinite[3])
+        if(zero[3])
+            crzero <- paste0(crzero, txt3, zero[3])
 
         crnormal <- paste0(crnormal, "m")
         crnumber <- paste0(crnumber, "m")
@@ -289,28 +353,68 @@ number_to_ansi_color <- function(normal, number, negnum, date, string,
         crstderr <- paste0(crstderr, "m")
         crwarn   <- paste0(crwarn,   "m")
         crerror  <- paste0(crerror,  "m")
+        crtrue <- paste0(crtrue, "m")
+        crfalse <- paste0(crfalse, "m")
+        crinfinite <- paste0(crinfinite, "m")
+        crzero     <- paste0(crzero,     "m")
+
     }
 
     .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate, crstring,
-       crconst, crstderr, crwarn, crerror, as.integer(verbose), PACKAGE="colorout")
+       crconst, crstderr, crwarn, crerror, crtrue, crfalse, crinfinite,
+       crzero, as.integer(verbose), as.integer(newline), PACKAGE="colorout")
 }
 
-setOutputColors256 <- function(normal = 40, number = 214, negnum = 209, date = 179, string = 85,
-                               const = 35, stderror = 33, warn = c(1, 0, 1),
-                               error = c(1, 15), verbose = TRUE)
-{
+setOutputColors256 <- function(normal = 40, negnum = 209, zero = 226,
+                               number = 214, date = 179, string = 85,
+                               const = 35, false = 203, true = 78,
+                               infinite = 39, stderror = 33,
+                               warn = c(1, 0, 1), error = c(1, 15),
+                               verbose = TRUE, zero.limit = NA
+                               ){
+    if(!is.na(zero.limit))
+        setZero(zero.limit)
+    else
+        unsetZero()
+    newline = as.integer(.Options$width < c(110, 140)[is.na(zero.limit) + 1])
     number_to_ansi_color(normal, number, negnum, date, string, const,
-                         stderror, warn, error, verbose, 255)
+                         stderror, warn, error, verbose,
+                         true, false, infinite, zero,
+                         255, newline)
     return (invisible(NULL))
 }
 
-setOutputColors <- function(normal = 2, number = 3, negnum = 3, date = 3, string = 6,
-                            const = 5, stderror = 4, warn = c(1, 0, 1),
-                            error = c(1, 7), verbose = TRUE)
-    
-{
+setOutputColors <- function(normal = 2, negnum = 3, zero = 3, number = 3,
+                            date = 3, string = 6, const = 5, false = 5,
+                            true = 2, infinite = 5, stderror = 4,
+                            warn = c(1, 0, 1), error = c(1, 7),
+                            verbose = TRUE, zero.limit = NA
+                            ){
+    if(!is.na(zero.limit))
+        setZero(zero.limit)
+    else
+        unsetZero()
+    newline = as.integer(.Options$width < c(110, 140)[is.na(zero.limit) + 1])
     number_to_ansi_color(normal, number, negnum, date, string, const,
-                         stderror, warn, error, verbose, 8)
+                         stderror, warn, error, verbose,
+                         true, false, infinite, zero,
+                         8, newline)
+    return(invisible(NULL))
+}
+
+unsetZero <- function()
+{
+    .C("colorout_UnsetZero", PACKAGE="colorout")
+    return(invisible(NULL))
+}
+
+setZero <- function(z = 1e-12)
+{
+    if(!is.double(z))
+        stop(gettext("z must be a real number.", domain = "R-colorout"),
+             call. = FALSE)
+    z <- as.double(abs(z))
+    .C("colorout_SetZero", z, PACKAGE="colorout")
     return(invisible(NULL))
 }
 
@@ -406,3 +510,4 @@ show256Colors <- function(outfile = "/tmp/table256.html")
     browseURL(outfile)
 
 }
+

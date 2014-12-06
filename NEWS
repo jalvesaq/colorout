@@ -1,3 +1,12 @@
+Version 1.0-4 (2014-12-06)
+
+   - Don't check if inside emacs; check if isatty(stdout()) is TRUE.
+
+   - New features:
+       - Highlight numbers close to zero.
+       - Highlight FALSE and TRUE and -Inf and Inf differently from constants.
+       - Improve the recognition of dates and times.
+
 Version 1.0-3 (2014-05-13)
 
    - Recognize output in the format yyyy-mm-dd as date (feature requested by
