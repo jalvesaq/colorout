@@ -8,7 +8,7 @@ output on terminal emulators.
 The easiest way to install it is to use the [devtools] package.
 
 ```s
-devtools::install_github("colorout", "jalvesaq")
+devtools::install_github("jalvesaq/colorout")
 ```
 
 Released versions are available at
