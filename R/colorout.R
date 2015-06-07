@@ -465,44 +465,41 @@ show256Colors <- function(outfile = "/tmp/table256.html")
               "#d0d0d0", "#dadada", "#e4e4e4", "#eeeeee")
 
     sink(file = outfile)
-    cat("<html>\n<head>\n  <title>256 terminal emulator colors</title>\n</head>\n")
-    cat("<body bgcolor=\"#000000\">\n")
+    cat("<html>\n<head>\n  <title>256 terminal emulator colors</title>\n")
+    cat("<style type=\"text/css\">\n  table td { height: 20px; width: 20px; }\n</style>\n")
+    cat("</head>\n<body bgcolor=\"#000000\">\n")
     cat("\n<p>&nbsp;</p>\n\n")
     cat("<p><font color=\"#DDDDDD\">Hover the mouse over the table cells to see the color numbers:</font></p>\n")
     cat("\n<p>&nbsp;</p>\n\n")
     cat("<table>\n")
-    cat("<tr height=\"20\">\n  ")
+    cat("<tr>\n  ")
     for(i in 0:7){
-        cat("<td width=\"20\", title=\"", i, " ", c256[i+1],
-            "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
+        cat("<td title=\"", i, " ", c256[i+1], "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
     }
-    cat("\n</tr>\n<tr height=\"20\">\n  ")
+    cat("\n</tr>\n<tr>\n  ")
     for(i in 8:15){
-        cat("<td width=\"20\", title=\"", i, " ", c256[i+1],
-            "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
+        cat("<td title=\"", i, " ", c256[i+1], "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
     }
     cat("\n</tr>\n</table>\n")
     cat("\n<p>&nbsp;</p>\n\n")
-    cat("<table>\n<tr height=\"20\">\n  ")
+    cat("<table>\n<tr>\n  ")
     for(red in 0:5){
         for(green in 0:5){
             for(blue in 0:5){
                 i <- 16 + (36 * red) + (6 * green) + blue
-                cat("<td width=\"20\", title=\"", i, " ", c256[i+1],
-                    "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
+                cat("<td title=\"", i, " ", c256[i+1], "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
             }
-            cat("<td width=\"10\"></td>\n")
+            cat("<td ></td>\n")
             if(green < 5) cat("  ")
         }
         cat("</tr>\n")
-        if(red < 5) cat("<tr height=\"20\">\n")
+        if(red < 5) cat("<tr>\n")
     }
     cat("</table>\n")
     cat("\n<p>&nbsp;</p>\n\n")
-    cat("<table>\n<tr height=\"20\">\n  ")
+    cat("<table>\n<tr>\n  ")
     for(i in 232:255){
-        cat("<td width=\"20\", title=\"", i, " ", c256[i+1],
-            "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
+        cat("<td title=\"", i, " ", c256[i+1], "\" style=\"background: ", c256[i+1], "\"></td>", sep = "")
     }
     cat("\n</tr>\n</table>\n</body>\n</html>")
     sink()
