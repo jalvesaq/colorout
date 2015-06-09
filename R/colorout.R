@@ -63,9 +63,10 @@ testTermForColorOut <- function()
 
 ColorOut <- function()
 {
-    if(testTermForColorOut() == FALSE)
-        stop(gettext("The output colorization was canceled.",
-                     domain = "R-colorout"), call. = FALSE)
+    msg <- testTermForColorOut()
+    if(msg != "OK")
+        stop(paste(gettext("The output colorization was canceled.",
+                           domain = "R-colorout"), msg), call. = FALSE)
 
     .C("colorout_ColorOutput", PACKAGE="colorout")
     return (invisible(NULL))
