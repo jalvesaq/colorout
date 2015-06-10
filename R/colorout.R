@@ -16,6 +16,10 @@
         options(colorout.anyterm = FALSE)
     if(is.null(getOption("colorout.dumb")))
         options(colorout.dumb = FALSE)
+    if(is.null(getOption("colorout.noninteractive")))
+        options(colorout.noninteractive = FALSE)
+    if(is.null(getOption("colorout.notatty")))
+        options(colorout.notatty = FALSE)
     if(is.null(getOption("colorout.verbose")))
         options(colorout.verbose = 0)
 
@@ -40,10 +44,10 @@ testTermForColorOut <- function()
     if(getOption("colorout.anyterm"))
         return("OK")
 
-    if(interactive() == FALSE)
+    if(interactive() == FALSE && getOption("colorout.noninteractive") == FALSE)
         return("Not in an interactive session.\n")
 
-    if(isatty(stdout()) == FALSE)
+    if(isatty(stdout()) == FALSE && getOption("colorout.notatty") == FALSE)
         return("isatty(stdout()) returned FALSE.\n")
 
     if(Sys.getenv("RSTUDIO") != "")
@@ -466,7 +470,7 @@ show256Colors <- function(outfile = "/tmp/table256.html")
               "#d0d0d0", "#dadada", "#e4e4e4", "#eeeeee")
 
     sink(file = outfile)
-    cat("<html>\n<head>\n  <title>256 terminal emulator colors</title>\n")
+    cat("<!DOCTYPE HTML SYSTEM>\n<html>\n<head>\n  <title>256 terminal emulator colors</title>\n")
     cat("<style type=\"text/css\">\n  table td { height: 20px; width: 20px; }\n</style>\n")
     cat("</head>\n<body bgcolor=\"#000000\">\n")
     cat("\n<p>&nbsp;</p>\n\n")

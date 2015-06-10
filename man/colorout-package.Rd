@@ -49,6 +49,8 @@ Colorize R output on terminal emulators
     options(colorout.verbose = 0)
     options(colorout.anyterm = TRUE)
     options(colorout.dumb = TRUE)
+    options(colorout.noninteractive = TRUE)
+    options(colorout.notatty = TRUE)
   }
 
   With \code{colorout.anyterm == TRUE}, the package will not check the
@@ -59,6 +61,17 @@ Colorize R output on terminal emulators
   
   \preformatted{
     if(interactive()){
+        options(colorout.anyterm = TRUE)
+        library(colorout)
+    }
+  }
+
+  And of course, you can use any arbitrary condition to decide whether to load
+  colorout or not. For instance:
+
+  \preformatted{
+    if((interactive() && Sys.getenv("RSTUDIO") == "") ||
+       (!interactive() && isatty(stdout()))){
         options(colorout.anyterm = TRUE)
         library(colorout)
     }
