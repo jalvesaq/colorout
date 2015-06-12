@@ -86,6 +86,8 @@ setOutputColors256(normal = c(0, 0, 18), number = c(0, 0, 90),
                    string = c(0, 0, 22), const = c(0, 0, 94), stderror = 52)
 
 # Color schemes for black background:
-setOutputColors256(normal = 202, number = 214, negnum = 209, date = 184,
-                   string = 172, const = 179, zero.limit = 0.1)
+setOutputColors256(normal = 39, negnum = 183, zero = 114, number = 51,
+                   date = 43, string = 79, const = 75, zero.limit = 0.1)
+setOutputColors256(normal = 202, number = 214, zero = 220, negnum = 209,
+                   date = 184, string = 172, const = 179, zero.limit = 0.01)
 }
