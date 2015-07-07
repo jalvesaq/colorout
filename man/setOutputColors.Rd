@@ -5,7 +5,7 @@
   Set the output colors to be used if R is running in a terminal emulator.
 }
 \usage{
-setOutputColors(normal = 2, negnum = 3, zero = 7, number = 3,
+setOutputColors(normal = 2, negnum = 3, zero = 3, number = 3,
                 date = 3, string = 6, const = 5, false = 5,
                 true = 2, infinite = 5, stderror = 4,
                 warn = c(1, 0, 1), error = c(1, 7),
