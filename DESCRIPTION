@@ -1,10 +1,11 @@
 Package: colorout
 Version: 1.1-1
-Date: 2015-06-12
+Date: 2015-07-07
 Title: Colorize R output on terminal emulators
 Author: Jakson Aquino and Dominique-Laurent Couturier
 Maintainer: Jakson Alves de Aquino <jalvesaq@gmail.com>
 OS_type: unix
+Imports: utils
 Description: Colorize R output when it is running on a terminal emulator.
    There is no support for Graphical User Interfaces, such as Windows RGui,
    RStudio, RKward, JGR etc. The functions of this package only work if R is
