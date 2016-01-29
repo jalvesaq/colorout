@@ -16,9 +16,7 @@ Colorize R output on terminal emulators
   terminal emulator. The terminal emulator might have been called
   by a text editor, such as Vim, Gedit, Kate or Geany.
  
-  Screenshot: \url{http://www.lepem.ufc.br/jaa/R_color_output.png}
-
-  Homepage: \url{http://www.lepem.ufc.br/jaa/colorout.html}
+  Homepage: \url{https://github.com/jalvesaq/colorout}
 }
 \details{
 
