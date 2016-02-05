@@ -1,7 +1,7 @@
 Package: colorout
-Version: 1.1-1
-Date: 2015-07-07
-Title: Colorize R output on terminal emulators
+Version: 1.1-2
+Date: 2016-02-05
+Title: Colorize R Output on Terminal Emulators
 Author: Jakson Aquino and Dominique-Laurent Couturier
 Maintainer: Jakson Alves de Aquino <jalvesaq@gmail.com>
 OS_type: unix
@@ -16,4 +16,4 @@ Description: Colorize R output when it is running on a terminal emulator.
    enabled, is responsible for printing messages in the Console when R is
    running in interactive mode.
 License: GPL (>= 2)
-URL: http://www.lepem.ufc.br/jaa/colorout.html
+URL: https://github.com/jalvesaq/colorout
