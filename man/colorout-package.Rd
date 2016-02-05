@@ -17,6 +17,10 @@ Colorize R output on terminal emulators
   by a text editor, such as Vim, Gedit, Kate or Geany.
  
   Homepage: \url{https://github.com/jalvesaq/colorout}
+
+  Screenshot:
+
+  \figure{screenshot.png}
 }
 \details{
 

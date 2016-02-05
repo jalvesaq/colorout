@@ -4,6 +4,7 @@
 \description{
   Set the output colors to be used if R is running in a terminal emulator. The
   terminal must be capable of displaying 256 colors.
+  See a screenshot at \link{colorout-package}.
 }
 \usage{
 setOutputColors256(normal = 40, negnum = 209, zero = 226,

@@ -3,6 +3,7 @@
 \title{Set the colors to be used on R output}
 \description{
   Set the output colors to be used if R is running in a terminal emulator.
+  See a screenshot at \link{colorout-package}.
 }
 \usage{
 setOutputColors(normal = 2, negnum = 3, zero = 3, number = 3,
