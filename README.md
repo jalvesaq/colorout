@@ -33,4 +33,4 @@ https://drive.google.com/open?id=0ByMBQcSs9G7KYkotRGpRYjlLVDg
 
 Screenshot:
 
-![Screenshot](https://dadoseteorias.files.wordpress.com/2016/01/r_color_output.png "Screenshot")
+![Screenshot](https://raw.githubusercontent.com/jalvesaq/colorout/master/man/figures/screenshot.png "Screenshot")
