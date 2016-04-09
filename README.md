@@ -2,9 +2,9 @@ colorout
 ========
 
 *colorout* is an R package that colorizes R output when running in a Unix
-(e.g. Linux and OS X) terminal emulator (does not work on Microsoft Windows).
+(e.g. Linux and OS X) terminal emulator; it does not work on Microsoft Windows.
 The relevant code is written in C and, thus, it runs very quickly and you
-shouldn't note any slowdown in R output. R's `stdout` is parsed and numbers,
+should not note any slowdown in R output. R's `stdout` is parsed and numbers,
 negative numbers, dates in the standard format, strings, and R constants are
 identified and wrapped by special ansi scape codes that are interpreted by
 terminal emulators as commands to colorize the output. R's `stderr` is also
@@ -25,6 +25,14 @@ package.
 
 ```s
 devtools::install_github("jalvesaq/colorout")
+```
+
+If you do not want to install *devtools*, you can intall the package by
+running the following commands in a terminal emulator:
+
+```
+git clone https://github.com/jalvesaq/colorout.git
+R CMD INSTALL colorout
 ```
 
 Recently released versions are available at
