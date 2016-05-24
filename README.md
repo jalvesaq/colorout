@@ -19,21 +19,17 @@ this is prohibited by the *CRAN Repository Policy*. The package replaces the
 functions that output results and messages to R Console, and this is necessary
 because we cannot colorize the output without replacing these functions.
 
-The easiest way to install it is to use the
-[devtools](http://cran.r-project.org/web/packages/devtools/index.html)
-package.
-
-```s
-devtools::install_github("jalvesaq/colorout")
-```
-
-If you do not want to install *devtools*, you can intall the package by
-running the following commands in a terminal emulator:
+You can intall the package by running the following commands in a terminal
+emulator:
 
 ```
 git clone https://github.com/jalvesaq/colorout.git
 R CMD INSTALL colorout
 ```
+
+Some people prefer to use
+[devtools](http://cran.r-project.org/web/packages/devtools/index.html) to
+install packages from github.
 
 Recently released versions are available at
 https://github.com/jalvesaq/colorout/releases and older versions are at
