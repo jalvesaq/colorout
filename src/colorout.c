@@ -225,12 +225,19 @@ char *colorout_make_bigger(char *ptr, int *len)
 }
 
 
-/* this function color prints the centent of 'buf', of length 'len' and type 'otype' */
+/* This function color prints the contents of 'buf', of length 'len' and type 'otype' */
 void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
 {
     char *newbuf, *bbuf;
     char piece[64];
     int neednl, i, j, l;
+
+    /* Do nothing if the output was already colorized by another package */
+    for(i = 0; i < len; i++)
+        if(buf[i] == 0x1b){
+            printf("%s", buf);
+            return;
+        }
 
     /* gnome-terminal extends the background color for the other line
      * if the "\033[0m" is after the newline*/
