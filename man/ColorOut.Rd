@@ -14,8 +14,9 @@ ColorOut()
 }
 
 \details{
-  There is no support for Graphical User Interfaces, such as Windows RGui,
-  and RStudio etc. The terminal must support ANSI escape codes. Please, read
+  The library works within RStudio, but there is no support for Graphical User
+  Interfaces, that does not support ANSI colors. If running in a terminal
+  emulator, it must support ANSI escape codes. Please, read
   \link{colorout-package} for more details.
 
   Emacs/ESS users should read \link{colorout-package} to know how to enable

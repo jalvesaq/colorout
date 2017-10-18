@@ -6,15 +6,14 @@
 Colorize R output on terminal emulators
 }
 \description{
-  Colorize R output when it is running on a Unix terminal
-  emulator. There is no support for Graphical User Interfaces,
-  such as Windows RGui, RStudio, RKward, JGR, Rcmdr and other
-  interfaces which have their own engine to display R output, such
-  as Neovim with the Vim-R-plugin or Emacs with ess. The functions
-  of this package only work if R is compiled for Unix systems
-  (e.g., Linux and OS X) and it is running interactively in a
-  terminal emulator. The terminal emulator might have been called
-  by a text editor, such as Vim, Gedit, Kate or Geany.
+  Colorize R output when it is running on a Unix terminal emulator. The
+  library also works within RStudio, but there is no support for other
+  Graphical User Interfaces, such as Windows RGui, RKward, JGR, Rcmdr
+  that cannot display ANSI colors. It also did not work with Emacs with ess.
+  The functions of this package only work if R is compiled for Unix systems
+  (e.g., Linux and OS X) and it is running interactively in a terminal
+  emulator. The terminal emulator might have been called by a text editor,
+  such as Vim, Gedit, Kate or Geany.
  
   Homepage: \url{https://github.com/jalvesaq/colorout}
 
@@ -72,8 +71,7 @@ Colorize R output on terminal emulators
   colorout or not. For instance:
 
   \preformatted{
-    if((interactive() && Sys.getenv("RSTUDIO") == "") ||
-       (!interactive() && isatty(stdout()))){
+    if(isatty(stdout())){
         options(colorout.anyterm = TRUE)
         library(colorout)
     }

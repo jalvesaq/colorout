@@ -47,11 +47,8 @@ testTermForColorOut <- function()
     if(interactive() == FALSE && getOption("colorout.noninteractive") == FALSE)
         return("Not in an interactive session.\n")
 
-    if(isatty(stdout()) == FALSE && getOption("colorout.notatty") == FALSE)
+    if(isatty(stdout()) == FALSE && getOption("colorout.notatty") == FALSE && Sys.getenv("RSTUDIO") == "")
         return("isatty(stdout()) returned FALSE.\n")
-
-    if(Sys.getenv("RSTUDIO") != "")
-        return("Inside Rstudio.\n")
 
     termenv <- Sys.getenv("TERM")
 
