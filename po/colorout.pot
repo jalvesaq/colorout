@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the colorout package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: colorout 1.1-3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-02 13:49-0300\n"
+"POT-Creation-Date: 2017-10-17 23:41-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,22 +17,22 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout/src/colorout.c:132
+#: colorout.c:263
 msgid "Warning"
 msgstr ""
 
-#: colorout/src/colorout.c:134
+#: colorout.c:265
 msgid "WARNING"
 msgstr ""
 
-#: colorout/src/colorout.c:136
+#: colorout.c:267
 msgid "Lost warning messages"
 msgstr ""
 
-#: colorout/src/colorout.c:144
+#: colorout.c:275
 msgid "Error"
 msgstr ""
 
-#: colorout/src/colorout.c:146
+#: colorout.c:277
 msgid "ERROR"
 msgstr ""

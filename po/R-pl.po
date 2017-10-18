@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.1-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-28 12:30+0100\n"
+"POT-Creation-Date: 2017-10-17 23:41\n"
 "PO-Revision-Date: 2015-12-28 12:37+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -20,37 +20,30 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: colorout/R/colorout.R:52
-#, c-format
-msgid ""
-"The R output will not be colorized because it seems that your terminal does "
-"not support ANSI escape codes.\n"
-"Sys.getenv('TERM') returned '%s'."
-msgstr ""
-"Wyjście R nie zostanie pokolorowane ponieważ wygląda na to, że Twoja konsola "
-"nie wspiera specjalnych sekwencji ANSI.\n"
-"Sys.getenv('TERM') zwrócił '%s'."
-
-#: colorout/R/colorout.R:65
-msgid ""
-"Please, do ?ColorOut to know how to enable the colorizing of R output on "
-"Emacs+ESS."
-msgstr ""
-"Użyj '?ColorOut' aby dowiedzieć się jak włączyć kolorowanie wyjścia R w Emacs"
-"+ESS."
-
-#: colorout/R/colorout.R:78
 msgid "The output colorization was canceled."
 msgstr "Kolorowanie wyjścia zostało anulowane."
 
-#: colorout/R/colorout.R:95 colorout/R/colorout.R:97 colorout/R/colorout.R:99
-#: colorout/R/colorout.R:101 colorout/R/colorout.R:103
-#: colorout/R/colorout.R:105 colorout/R/colorout.R:107
-#: colorout/R/colorout.R:109 colorout/R/colorout.R:111
-#, c-format
 msgid "The value of '%s' must be a number correspoding to an ANSI escape code."
 msgstr "Wartość '%s' musi być liczbą odpowiadającą sekwencji specjalnej ANSI."
 
-#: colorout/R/colorout.R:113
 msgid "'verbose' must be of mode 'logical'."
 msgstr "'verbose' musi być typu 'logical'."
+
+msgid "z must be a real number."
+msgstr ""
+
+#~ msgid ""
+#~ "The R output will not be colorized because it seems that your terminal "
+#~ "does not support ANSI escape codes.\n"
+#~ "Sys.getenv('TERM') returned '%s'."
+#~ msgstr ""
+#~ "Wyjście R nie zostanie pokolorowane ponieważ wygląda na to, że Twoja "
+#~ "konsola nie wspiera specjalnych sekwencji ANSI.\n"
+#~ "Sys.getenv('TERM') zwrócił '%s'."
+
+#~ msgid ""
+#~ "Please, do ?ColorOut to know how to enable the colorizing of R output on "
+#~ "Emacs+ESS."
+#~ msgstr ""
+#~ "Użyj '?ColorOut' aby dowiedzieć się jak włączyć kolorowanie wyjścia R w "
+#~ "Emacs+ESS."

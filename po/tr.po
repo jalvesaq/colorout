@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-02 13:35-0300\n"
+"POT-Creation-Date: 2017-10-17 23:41-0300\n"
 "PO-Revision-Date: 2014-05-02 13:49-0300\n"
 "Last-Translator: Jakson Aquino <jalvesaq@gmail.com>\n"
 "Language-Team: tr\n"
@@ -16,23 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout/src/colorout.c:132
+#: colorout.c:263
 msgid "Warning"
 msgstr "Uyarı"
 
-#: colorout/src/colorout.c:134
+#: colorout.c:265
 msgid "WARNING"
 msgstr "UYARI"
 
-#: colorout/src/colorout.c:136
+#: colorout.c:267
 msgid "Lost warning messages"
 msgstr "Kayıp uyarı mesajları"
 
-#: colorout/src/colorout.c:144
+#: colorout.c:275
 msgid "Error"
 msgstr "Hata"
 
-#: colorout/src/colorout.c:146
+#: colorout.c:277
 msgid "ERROR"
 msgstr "HATA"
-

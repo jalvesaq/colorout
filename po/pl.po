@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.1-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-28 12:28+0100\n"
+"POT-Creation-Date: 2017-10-17 23:41-0300\n"
 "PO-Revision-Date: 2015-12-28 12:29+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -16,25 +16,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.4\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: colorout/src/colorout.c:132
+#: colorout.c:263
 msgid "Warning"
 msgstr "Ostrzeżenie"
 
-#: colorout/src/colorout.c:134
+#: colorout.c:265
 msgid "WARNING"
 msgstr "OSTRZEŻENIE"
 
-#: colorout/src/colorout.c:136
+#: colorout.c:267
 msgid "Lost warning messages"
 msgstr "Utracono komunikaty ostrzegawcze"
 
-#: colorout/src/colorout.c:144
+#: colorout.c:275
 msgid "Error"
 msgstr "Błąd"
 
-#: colorout/src/colorout.c:146
+#: colorout.c:277
 msgid "ERROR"
 msgstr "BŁĄD"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-02 13:34-0300\n"
-"PO-Revision-Date: 2014-05-02 13:48-0300\n"
+"POT-Creation-Date: 2017-10-17 23:41\n"
+"PO-Revision-Date: 2017-10-17 23:42-0300\n"
 "Last-Translator: Jakson Aquino <jalvesaq@gmail.com>\n"
 "Language-Team: pt <pt@li.org>\n"
 "Language: pt_BR\n"
@@ -16,38 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout/R/colorout.R:52
-#, c-format
-msgid ""
-"The R output will not be colorized because it seems that your terminal does "
-"not support ANSI escape codes.\n"
-"Sys.getenv('TERM') returned '%s'."
-msgstr ""
-"O output do R não será colorido porque o seu terminal pode não suportar "
-"códigos de escape ANSI.\n"
-"Sys.getenv('TERM') retornou '%s'."
-
-#: colorout/R/colorout.R:65
-msgid ""
-"Please, do ?ColorOut to know how to enable the colorizing of R output on "
-"Emacs+ESS."
-msgstr ""
-"Por favor, digite ?ColorOut para saber como habilitar o colorimento de "
-"output do R no Emacs+ESS."
-
-#: colorout/R/colorout.R:78
 msgid "The output colorization was canceled."
 msgstr "A colorização do output foi cancelada."
 
-#: colorout/R/colorout.R:95 colorout/R/colorout.R:97 colorout/R/colorout.R:99
-#: colorout/R/colorout.R:101 colorout/R/colorout.R:103
-#: colorout/R/colorout.R:105 colorout/R/colorout.R:107
-#: colorout/R/colorout.R:109 colorout/R/colorout.R:111
-#, c-format
 msgid "The value of '%s' must be a number correspoding to an ANSI escape code."
 msgstr ""
 "O valor de '%s' deve ser um número correspondente a um código escape ANSI."
 
-#: colorout/R/colorout.R:113
 msgid "'verbose' must be of mode 'logical'."
 msgstr "'verbose' deve ser do tipo 'logical'."
+
+msgid "z must be a real number."
+msgstr "z deve ser um número real."
