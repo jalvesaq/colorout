@@ -69,302 +69,97 @@ ColorOut <- function()
         stop(paste(gettext("The output colorization was canceled.",
                            domain = "R-colorout"), msg), call. = FALSE)
 
-    .C("colorout_ColorOutput", PACKAGE="colorout")
+    .C("colorout_ColorOutput", PACKAGE = "colorout")
     return (invisible(NULL))
 }
 
 noColorOut <- function()
 {
-    .C("colorout_noColorOutput", PACKAGE="colorout")
+    .C("colorout_noColorOutput", PACKAGE = "colorout")
     return (invisible(NULL))
 }
 
-number_to_ansi_color <- function(normal, number, negnum, date, string,
-                                 const, stderror, warn, error, verbose,
-                                 true, false, infinite, zero,
-                                 maxcolor, newline)
+GetColorCode <- function(x, name, maxcolor)
 {
-    if(!is.numeric(normal))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "normal", domain = "R-colorout"))
-    if(!is.numeric(number))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "number", domain = "R-colorout"))
-    if(!is.numeric(negnum))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "negnum", domain = "R-colorout"))
-    if(!is.numeric(date))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "date", domain = "R-colorout"))
-    if(!is.numeric(string))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "string", domain = "R-colorout"))
-    if(!is.numeric(const))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "const", domain = "R-colorout"))
-    if(!is.numeric(stderror))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "stderror", domain = "R-colorout"))
-    if(!is.numeric(error))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "error", domain = "R-colorout"))
-    if(!is.numeric(warn))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
-    if(!is.logical(verbose))
-        stop(gettextf("'verbose' must be of mode 'logical'.", domain = "R-colorout"))
-    if(!is.numeric(true))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
-    if(!is.numeric(false))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
-    if(!is.numeric(infinite))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "warn", domain = "R-colorout"))
-    if(!is.numeric(zero))
-        stop(gettextf("The value of '%s' must be a number correspoding to an ANSI escape code.", "number", domain = "R-colorout"))
+    if(!is.character(x) && !is.numeric(x))
+        stop(gettextf("The value of '%s' must be either a number correspoding to an ANSI escape code or a character string.", name, domain = "R-colorout"))
 
-    const[const > maxcolor]   <- 0
-    date[date > maxcolor]     <- 0
-    error[error > maxcolor]   <- 0
-    negnum[negnum > maxcolor] <- 0
-    normal[normal > maxcolor] <- 0
-    number[number > maxcolor] <- 0
-    string[string > maxcolor] <- 0
-    warn[warn > maxcolor]     <- 0
-    stderror[stderror > maxcolor] <- 0
-    true[true > maxcolor] <- 0
-    false[false > maxcolor] <- 0
-    infinite[infinite > maxcolor] <- 0
-    zero[zero > maxcolor]         <- 0
+    if(is.character(x) && length(x) != 1)
+        stop(gettextf("'%s' must be a character vector of length 1", name, domain = "R-colorout"))
 
-    const[const < 0]   <- 0
-    date[date < 0]     <- 0
-    error[error < 0]   <- 0
-    negnum[negnum < 0] <- 0
-    normal[normal < 0] <- 0
-    number[number < 0] <- 0
-    string[string < 0] <- 0
-    warn[warn < 0]     <- 0
-    stderror[stderror < 0] <- 0
-    true[true < 0] <- 0
-    false[false < 0] <- 0
-    infinite[infinite < 0] <- 0
-    zero[zero < 0]         <- 0
-
-    if(length(normal) < 3)
-        normal <- c(rep(0, 3 - length(normal)), normal)
-    if(length(number) < 3)
-        number <- c(rep(0, 3 - length(number)), number)
-    if(length(negnum) < 3)
-        negnum <- c(rep(0, 3 - length(negnum)), negnum)
-    if(length(date) < 3)
-        date <- c(rep(0, 3 - length(date)), date)
-    if(length(string) < 3)
-        string <- c(rep(0, 3 - length(string)), string)
-    if(length(const) < 3)
-        const <- c(rep(0, 3 - length(const)), const)
-    if(length(stderror) < 3)
-        stderror <- c(rep(0, 3 - length(stderror)), stderror)
-    if(length(warn) < 3)
-        warn <- c(rep(0, 3 - length(warn)), warn)
-    if(length(error) < 3)
-        error <- c(rep(0, 3 - length(error)), error)
-    if(length(true) < 3)
-        true <- c(rep(0, 3 - length(true)), true)
-    if(length(false) < 3)
-        false <- c(rep(0, 3 - length(false)), false)
-    if(length(infinite) < 3)
-        infinite <- c(rep(0, 3 - length(infinite)), infinite)
-    if(length(zero) < 3)
-        zero <- c(rep(0, 3 - length(zero)), zero)
-
-    ## if "fbterm" && maxcolour = 255 (osx has "xterm-256color")
-    if(Sys.getenv("TERM") == "fbterm" && maxcolor == 255){
-        crnormal <- ""
-        crnumber <- ""
-        crnegnum <- ""
-        crdate   <- ""
-        crstring <- ""
-        crconst  <- ""
-        crstderr <- ""
-        crwarn   <- ""
-        crerror  <- ""
-        crtrue <- ""
-        crfalse <- ""
-        crinfinite <- ""
-        crzero     <- ""
-
-        if(normal[2])
-            crnormal <- paste0("\033[2;", normal[2], "}")
-        if(number[2])
-            crnumber <- paste0("\033[2;", number[2], "}")
-        if(negnum[2])
-            crnegnum <- paste0("\033[2;", negnum[2], "}")
-        if(date[2])
-            crdate <-   paste0("\033[2;", date[2], "}")
-        if(string[2])
-            crstring <- paste0("\033[2;", string[2], "}")
-        if(const[2])
-            crconst <-  paste0("\033[2;", const[2], "}")
-        if(stderror[2])
-            crstderr <- paste0("\033[2;", stderr[2], "}")
-        if(warn[2])
-            crwarn <-   paste0("\033[2;", warn[2], "}")
-        if(error[2])
-            crerror <-  paste0("\033[2;", error[2], "}")
-        if(true[2])
-            crtrue <- paste0("\033[2;", true[2], "}")
-        if(false[2])
-            crfalse <- paste0("\033[2;", false[2], "}")
-        if(infinite[2])
-            crinfinite <- paste0("\033[2;", infinite[2], "}")
-        if(zero[2])
-            crzero <- paste0("\033[2;", zero[2], "}")
-
-        if(normal[3])
-            crnormal <- paste0(crnormal, "\033[1;", normal[3], "}")
-        if(number[3])
-            crnumber <- paste0(crnumber, "\033[1;", number[3], "}")
-        if(negnum[3])
-            crnegnum <- paste0(crnegnum, "\033[1;", negnum[3], "}")
-        if(date[3])
-            crdate <-   paste0(crdate,   "\033[1;", date[3], "}")
-        if(string[3])
-            crstring <- paste0(crstring, "\033[1;", string[3], "}")
-        if(const[3])
-            crconst <-  paste0(crconst,  "\033[1;", const[3], "}")
-        if(stderror[3])
-            crstderr <- paste0(crstderr, "\033[1;", stderror[3], "}")
-        if(warn[3])
-            crwarn <-   paste0(crwarn,   "\033[1;", warn[3], "}")
-        if(error[3])
-            crerror <-  paste0(crerror,  "\033[1;", error[3], "}")
-        if(true[3])
-            crtrue <- paste0(crtrue, "\033[1;", true[3], "}")
-        if(false[3])
-            crfalse <- paste0(crfalse, "\033[1;", false[3], "}")
-        if(infinite[3])
-            crinfinite <- paste0(crinfinite, "\033[1;", infinite[3], "}")
-        if(zero[3])
-            crzero <- paste0(crzero, "\033[1;", zero[3], "}")
-
-
-        ## if !("fbterm" && maxcolour = 255) (i.e., osx...)
+    if(is.character(x)){
+        colstr <- x
     } else {
-        crnormal <- "\033[0"
-        crnumber <- "\033[0"
-        crnegnum <- "\033[0"
-        crdate   <- "\033[0"
-        crstring <- "\033[0"
-        crconst  <- "\033[0"
-        crstderr <- "\033[0"
-        crwarn   <- "\033[0"
-        crerror  <- "\033[0"
-        crtrue <- "\033[0"
-        crfalse <- "\033[0"
-        crinfinite <- "\033[0"
-        crzero     <- "\033[0"
+        x[x > maxcolor] <- 0
+        x[x < 0] <- 0
+        if(length(x) < 3)
+            x <- c(rep(0, 3 - length(x)), x)
 
-        if(normal[1])
-            crnormal <- paste0(crnormal, ";", normal[1])
-        if(number[1])
-            crnumber <- paste0(crnumber, ";", number[1])
-        if(negnum[1])
-            crnegnum <- paste0(crnegnum, ";", negnum[1])
-        if(date[1])
-            crdate <- paste0(crdate, ";", date[1])
-        if(string[1])
-            crstring <- paste0(crstring, ";", string[1])
-        if(const[1])
-            crconst <- paste0(crconst, ";", const[1])
-        if(stderror[1])
-            crstderr <- paste0(crstderr, ";", stderror[1])
-        if(warn[1])
-            crwarn <- paste0(crwarn, ";", warn[1])
-        if(error[1])
-            crerror <- paste0(crerror, ";", error[1])
-        if(true[1])
-            crtrue <- paste0(crtrue, ";", true[1])
-        if(false[1])
-            crfalse <- paste0(crfalse, ";", false[1])
-        if(infinite[1])
-            crinfinite <- paste0(crinfinite, ";", infinite[1])
-        if(zero[1])
-            crzero <- paste0(crzero, ";", zero[1])
-
-        if(maxcolor == 255)
-            txt2 <- ";48;5;"
-        else
-            txt2 <- ";4"
-
-        if(normal[2])
-            crnormal <- paste0(crnormal, txt2, normal[2])
-        if(number[2])
-            crnumber <- paste0(crnumber, txt2, number[2])
-        if(negnum[2])
-            crnegnum <- paste0(crnegnum, txt2, negnum[2])
-        if(date[2])
-            crdate <-   paste0(crdate,   txt2, date[2])
-        if(string[2])
-            crstring <- paste0(crstring, txt2, string[2])
-        if(const[2])
-            crconst <-  paste0(crconst,  txt2, const[2])
-        if(stderror[2])
-            crstderr <- paste0(crstderr, txt2, stderror[2])
-        if(warn[2])
-            crwarn <-   paste0(crwarn,   txt2, warn[2])
-        if(error[2])
-            crerror <-  paste0(crerror,  txt2, error[2])
-        if(true[2])
-            crtrue <- paste0(crtrue, txt2, true[2])
-        if(false[2])
-            crfalse <- paste0(crfalse, txt2, false[2])
-        if(infinite[2])
-            crinfinite <- paste0(crinfinite, txt2, infinite[2])
-        if(zero[2])
-            crzero <- paste0(crzero, txt2, zero[2])
-
-        if(maxcolor == 255)
-            txt3 <- ";38;5;"
-        else
-            txt3 <- ";3"
-
-        if(normal[3])
-            crnormal <- paste0(crnormal, txt3, normal[3])
-        if(number[3])
-            crnumber <- paste0(crnumber, txt3, number[3])
-        if(negnum[3])
-            crnegnum <- paste0(crnegnum, txt3, negnum[3])
-        if(date[3])
-            crdate <-   paste0(crdate,   txt3, date[3])
-        if(string[3])
-            crstring <- paste0(crstring, txt3, string[3])
-        if(const[3])
-            crconst <-  paste0(crconst,  txt3, const[3])
-        if(stderror[3])
-            crstderr <- paste0(crstderr, txt3, stderror[3])
-        if(warn[3])
-            crwarn <-   paste0(crwarn,   txt3, warn[3])
-        if(error[3])
-            crerror <-  paste0(crerror,  txt3, error[3])
-        if(true[3])
-            crtrue <- paste0(crtrue, txt3, true[3])
-        if(false[3])
-            crfalse <- paste0(crfalse, txt3, false[3])
-        if(infinite[3])
-            crinfinite <- paste0(crinfinite, txt3, infinite[3])
-        if(zero[3])
-            crzero <- paste0(crzero, txt3, zero[3])
-
-        crnormal <- paste0(crnormal, "m")
-        crnumber <- paste0(crnumber, "m")
-        crnegnum <- paste0(crnegnum, "m")
-        crdate   <- paste0(crdate,   "m")
-        crstring <- paste0(crstring, "m")
-        crconst  <- paste0(crconst,  "m")
-        crstderr <- paste0(crstderr, "m")
-        crwarn   <- paste0(crwarn,   "m")
-        crerror  <- paste0(crerror,  "m")
-        crtrue <- paste0(crtrue, "m")
-        crfalse <- paste0(crfalse, "m")
-        crinfinite <- paste0(crinfinite, "m")
-        crzero     <- paste0(crzero,     "m")
-
+        ## if "fbterm" && maxcolour = 255 (osx has "xterm-256color")
+        if(Sys.getenv("TERM") == "fbterm" && maxcolor == 255){
+            colstr <- ""
+            if(x[2])
+                colstr <- paste0("\033[2;", x[2], "}")
+            if(x[3])
+                colstr <- paste0(colstr, "\033[1;", x[3], "}")
+        } else {
+            colstr <- "\033[0"
+            if(x[1])
+                colstr <- paste0(colstr, ";", x[1])
+            if(maxcolor == 255)
+                txt2 <- ";48;5;"
+            else
+                txt2 <- ";4"
+            if(x[2])
+                colstr <- paste0(colstr, txt2, x[2])
+            if(maxcolor == 255)
+                txt3 <- ";38;5;"
+            else
+                txt3 <- ";3"
+            if(x[3])
+                colstr <- paste0(colstr, txt3, x[3])
+            colstr <- paste0(colstr, "m")
+        }
     }
+    colstr
+}
+
+setOutputColorsX <- function(normal, negnum, zero, number, date, string,
+                             const, false, true, infinite, stderror, warn,
+                             error, verbose = TRUE, zero.limit, maxcolor)
+{
+    if(!is.logical(verbose))
+        verbose <- FALSE
+    if(is.na(zero.limit)){
+        unsetZero()
+    } else {
+        if(is.numeric(zero.limit) && zero.limit > 0)
+            setZero(zero.limit)
+        else
+            unsetZero()
+    }
+
+    newline <- as.integer(.Options$width < c(110, 140)[is.na(zero.limit) + 1])
+
+    crnormal   <- GetColorCode(normal,      "normal",  maxcolor)
+    crnegnum   <- GetColorCode(negnum,      "negnum",  maxcolor)
+    crzero     <- GetColorCode(zero,          "zero",  maxcolor)
+    crnumber   <- GetColorCode(number,      "number",  maxcolor)
+    crdate     <- GetColorCode(date,          "date",  maxcolor)
+    crstring   <- GetColorCode(string,      "string",  maxcolor)
+    crconst    <- GetColorCode(const,        "const",  maxcolor)
+    crfalse    <- GetColorCode(false,        "false",  maxcolor)
+    crtrue     <- GetColorCode(true,          "true",  maxcolor)
+    crinfinite <- GetColorCode(infinite,  "infinite",  maxcolor)
+    crstderr   <- GetColorCode(stderror,  "stderror",  maxcolor)
+    crwarn     <- GetColorCode(warn,          "warn",  maxcolor)
+    crerror    <- GetColorCode(error,        "error",  maxcolor)
 
     .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate, crstring,
        crconst, crstderr, crwarn, crerror, crtrue, crfalse, crinfinite,
-       crzero, as.integer(verbose), as.integer(newline), PACKAGE="colorout")
+       crzero, as.integer(verbose), as.integer(newline), PACKAGE = "colorout")
+
+    return(invisible(NULL))
 }
 
 setOutputColors256 <- function(normal = 40, negnum = 209, zero = 226,
@@ -372,18 +167,14 @@ setOutputColors256 <- function(normal = 40, negnum = 209, zero = 226,
                                const = 35, false = 203, true = 78,
                                infinite = 39, stderror = 33,
                                warn = c(1, 0, 1), error = c(1, 15),
-                               verbose = TRUE, zero.limit = NA
-                               ){
-    if(!is.na(zero.limit))
-        setZero(zero.limit)
-    else
-        unsetZero()
-    newline = as.integer(.Options$width < c(110, 140)[is.na(zero.limit) + 1])
-    number_to_ansi_color(normal, number, negnum, date, string, const,
-                         stderror, warn, error, verbose,
-                         true, false, infinite, zero,
-                         255, newline)
-    return (invisible(NULL))
+                               verbose = TRUE, zero.limit = NA)
+{
+
+    setOutputColorsX(normal, negnum, zero, number, date, string, const, false,
+                     true, infinite, stderror, warn, error, verbose,
+                     zero.limit, 255)
+
+        return (invisible(NULL))
 }
 
 setOutputColors <- function(normal = 2, negnum = 3, zero = 3, number = 3,
@@ -391,22 +182,19 @@ setOutputColors <- function(normal = 2, negnum = 3, zero = 3, number = 3,
                             true = 2, infinite = 5, stderror = 4,
                             warn = c(1, 0, 1), error = c(1, 7),
                             verbose = TRUE, zero.limit = NA
-                            ){
-    if(!is.na(zero.limit))
-        setZero(zero.limit)
-    else
-        unsetZero()
-    newline = as.integer(.Options$width < c(110, 140)[is.na(zero.limit) + 1])
-    number_to_ansi_color(normal, number, negnum, date, string, const,
-                         stderror, warn, error, verbose,
-                         true, false, infinite, zero,
-                         8, newline)
+                            )
+{
+
+    setOutputColorsX(normal, negnum, zero, number, date, string, const, false,
+                     true, infinite, stderror, warn, error, verbose,
+                     zero.limit, 8)
+
     return(invisible(NULL))
 }
 
 unsetZero <- function()
 {
-    .C("colorout_UnsetZero", PACKAGE="colorout")
+    .C("colorout_UnsetZero", PACKAGE = "colorout")
     return(invisible(NULL))
 }
 
@@ -416,7 +204,7 @@ setZero <- function(z = 1e-12)
         stop(gettext("z must be a real number.", domain = "R-colorout"),
              call. = FALSE)
     z <- as.double(abs(z))
-    .C("colorout_SetZero", z, PACKAGE="colorout")
+    .C("colorout_SetZero", z, PACKAGE = "colorout")
     return(invisible(NULL))
 }
 

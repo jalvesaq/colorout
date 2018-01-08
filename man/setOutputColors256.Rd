@@ -73,6 +73,9 @@ setOutputColors256(normal = 40, negnum = 209, zero = 226,
   codes will be used instead of the ANSI ones and the format values will be
   ignored.
 
+  If you pass a string as a color, it will be used as is. Thus, you should
+  pass valid strings (please, see the true color example below). The string
+  must have at most 63 characters.
 }
 \value{
   NULL.
@@ -91,4 +94,20 @@ setOutputColors256(normal = 39, negnum = 183, zero = 114, number = 51,
                    date = 43, string = 79, const = 75, zero.limit = 0.1)
 setOutputColors256(normal = 202, number = 214, zero = 220, negnum = 209,
                    date = 184, string = 172, const = 179, zero.limit = 0.01)
+
+# True color example:
+setOutputColors256(normal   = "\x1b[38;2;0;200;0m",
+                   negnum   = "\x1b[38;2;255;200;0m",
+                   zero     = "\x1b[38;2;255;255;0m",
+                   number   = "\x1b[38;2;200;255;75m",
+                   date     = "\x1b[38;2;155;155;255m",
+                   string   = "\x1b[38;2;0;255;175m",
+                   const    = "\x1b[38;2;0;255;255m",
+                   false    = "\x1b[38;2;255;125;125m",
+                   true     = "\x1b[38;2;125;255;125m",
+                   infinite = "\x1b[38;2;75;75;255m",
+                   stderror = "\x1b[38;2;255;0;255m",
+                   warn     = "\x1b[38;2;255;0;0m",
+                   error    = "\x1b[38;2;255;255;255;48;2;255;0;0m",
+                   zero.limit = 0.01)
 }

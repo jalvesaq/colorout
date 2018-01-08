@@ -63,7 +63,10 @@ setOutputColors(normal = 2, negnum = 3, zero = 3, number = 3,
   Messages are colored as errors and warnings if they start with \code{"Error"}
   or \code{"Warning"} (or their translations, if not running in an English
   locale).
- 
+
+  If you pass a string as a color, it will be used as is. Thus, you should
+  pass valid strings (please, see the true color example below). The string
+  must have at most 63 characters.
 }
 \value{
   NULL.
@@ -77,4 +80,20 @@ setOutputColors(normal = 4, negnum = 3,  zero = 0, number = 4,
                 date = 2, string = 2, const = 2, false = 1,
                 true = 5, infinite = 4, stderror = c(1, 0, 5),
                 zero.limit = 0.01) 
+
+# True color example:
+setOutputColors(normal   = "\x1b[38;2;0;200;0m",
+                negnum   = "\x1b[38;2;255;200;0m",
+                zero     = "\x1b[38;2;255;255;0m",
+                number   = "\x1b[38;2;200;255;75m",
+                date     = "\x1b[38;2;155;155;255m",
+                string   = "\x1b[38;2;0;255;175m",
+                const    = "\x1b[38;2;0;255;255m",
+                false    = "\x1b[38;2;255;125;125m",
+                true     = "\x1b[38;2;125;255;125m",
+                infinite = "\x1b[38;2;75;75;255m",
+                stderror = "\x1b[38;2;255;0;255m",
+                warn     = "\x1b[38;2;255;0;0m",
+                error    = "\x1b[38;2;255;255;255;48;2;255;0;0m",
+                zero.limit = 0.01)
 }

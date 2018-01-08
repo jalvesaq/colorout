@@ -39,9 +39,9 @@ static void (*save_ptr_R_WriteConsoleEx)(const char *, int, int);
 static void *save_R_Outputfile;
 static void *save_R_Consolefile;
 
-static char crnormal[32], crnumber[32], crnegnum[32], crdate[32], crstring[32],
-            crconst[32], crstderr[32], crwarn[32], crerror[32],
-            crlogicalF[32], crlogicalT[32], crinfinite[32], crzero[32];
+static char crnormal[64], crnumber[64], crnegnum[64], crdate[64], crstring[64],
+            crconst[64], crstderr[64], crwarn[64], crerror[64],
+            crlogicalF[64], crlogicalT[64], crinfinite[64], crzero[64];
 static int normalsize, numbersize, negnumsize, datesize, stringsize, constsize,
            logicalTsize, logicalFsize, infinitesize, zerosize;
 static int colors_initialized = 0;
@@ -169,19 +169,19 @@ void colorout_SetColors(char **normal, char **number, char **negnum,
         char **warn, char **error, char **logicalT, char **logicalF,
         char **infinite, char **zero, int *verbose, int *newline)
 {
-    strcpy(crnormal, normal[0]);
-    strcpy(crnumber, number[0]);
-    strcpy(crnegnum, negnum[0]);
-    strcpy(crdate,   datenum[0]);
-    strcpy(crstring, string[0]);
-    strcpy(crconst,  constant[0]);
-    strcpy(crstderr, stderror[0]);
-    strcpy(crwarn,   warn[0]);
-    strcpy(crerror,  error[0]);
-    strcpy(crlogicalT, logicalT[0]);
-    strcpy(crlogicalF, logicalF[0]);
-    strcpy(crinfinite, infinite[0]);
-    strcpy(crzero,     zero[0]);
+    strncpy(crnormal, normal[0], 63);
+    strncpy(crnumber, number[0], 63);
+    strncpy(crnegnum, negnum[0], 63);
+    strncpy(crdate,   datenum[0], 63);
+    strncpy(crstring, string[0], 63);
+    strncpy(crconst,  constant[0], 63);
+    strncpy(crstderr, stderror[0], 63);
+    strncpy(crwarn,   warn[0], 63);
+    strncpy(crerror,  error[0], 63);
+    strncpy(crlogicalT, logicalT[0], 63);
+    strncpy(crlogicalF, logicalF[0], 63);
+    strncpy(crinfinite, infinite[0], 63);
+    strncpy(crzero,     zero[0], 63);
 
     normalsize = strlen(crnormal);
     numbersize = strlen(crnumber);
