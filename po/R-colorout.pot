@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.1-3\n"
-"POT-Creation-Date: 2017-10-17 23:41\n"
+"POT-Creation-Date: 2018-01-07 22:07\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,10 +13,10 @@ msgstr ""
 msgid "The output colorization was canceled."
 msgstr ""
 
-msgid "The value of '%s' must be a number correspoding to an ANSI escape code."
+msgid "The value of '%s' must be either a number correspoding to an ANSI escape code or a character string."
 msgstr ""
 
-msgid "'verbose' must be of mode 'logical'."
+msgid "'%s' must be a character vector of length 1"
 msgstr ""
 
 msgid "z must be a real number."

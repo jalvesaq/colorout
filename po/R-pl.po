@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.1-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-17 23:41\n"
+"POT-Creation-Date: 2018-01-07 22:07\n"
 "PO-Revision-Date: 2015-12-28 12:37+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -23,14 +23,20 @@ msgstr ""
 msgid "The output colorization was canceled."
 msgstr "Kolorowanie wyjścia zostało anulowane."
 
-msgid "The value of '%s' must be a number correspoding to an ANSI escape code."
+#, fuzzy
+msgid ""
+"The value of '%s' must be either a number correspoding to an ANSI escape "
+"code or a character string."
 msgstr "Wartość '%s' musi być liczbą odpowiadającą sekwencji specjalnej ANSI."
 
-msgid "'verbose' must be of mode 'logical'."
-msgstr "'verbose' musi być typu 'logical'."
+msgid "'%s' must be a character vector of length 1"
+msgstr ""
 
 msgid "z must be a real number."
 msgstr ""
+
+#~ msgid "'verbose' must be of mode 'logical'."
+#~ msgstr "'verbose' musi być typu 'logical'."
 
 #~ msgid ""
 #~ "The R output will not be colorized because it seems that your terminal "
