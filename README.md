@@ -24,8 +24,14 @@ emulator:
 
 ```
 git clone https://github.com/jalvesaq/colorout.git
+cd colorout
+git checkout <version.tag>
+cd ..
 R CMD INSTALL colorout
 ```
+
+You can find the available version tags
+[here](https://github.com/cpfaff/colorout/releases).
 
 Some people prefer to use
 [devtools](http://cran.r-project.org/web/packages/devtools/index.html) to
