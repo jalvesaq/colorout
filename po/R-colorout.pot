@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.1-3\n"
-"POT-Creation-Date: 2018-01-07 22:07\n"
+"POT-Creation-Date: 2018-01-18 12:18\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,9 @@ msgid "The value of '%s' must be either a number correspoding to an ANSI escape 
 msgstr ""
 
 msgid "'%s' must be a character vector of length 1"
+msgstr ""
+
+msgid "'%s' must have no more than 63 characters."
 msgstr ""
 
 msgid "z must be a real number."

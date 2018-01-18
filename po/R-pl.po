@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.1-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-07 22:07\n"
+"POT-Creation-Date: 2018-01-18 12:18\n"
 "PO-Revision-Date: 2015-12-28 12:37+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -30,6 +30,9 @@ msgid ""
 msgstr "Wartość '%s' musi być liczbą odpowiadającą sekwencji specjalnej ANSI."
 
 msgid "'%s' must be a character vector of length 1"
+msgstr ""
+
+msgid "'%s' must have no more than 63 characters."
 msgstr ""
 
 msgid "z must be a real number."

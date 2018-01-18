@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-17 23:41-0300\n"
+"POT-Creation-Date: 2018-01-18 12:16-0300\n"
 "PO-Revision-Date: 2014-05-02 13:48-0300\n"
 "Last-Translator: Jakson Aquino <jalvesaq@gmail.com>\n"
 "Language-Team: nn\n"
@@ -16,22 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout.c:263
+#: colorout.c:281
 msgid "Warning"
 msgstr "Åtvaring"
 
-#: colorout.c:265
+#: colorout.c:283
 msgid "WARNING"
 msgstr "Åtvaring"
 
-#: colorout.c:267
+#: colorout.c:285
 msgid "Lost warning messages"
 msgstr "Tapt åtvaringsmelding"
 
-#: colorout.c:275
+#: colorout.c:293
 msgid "Error"
 msgstr "Feil"
 
-#: colorout.c:277
+#: colorout.c:295
 msgid "ERROR"
 msgstr "FEIL"
