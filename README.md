@@ -12,14 +12,15 @@ parsed to identify the expressions "warning" and "error" and their
 translations to many languages. If these expressions are found, the output is
 colorized accordingly; otherwise, it is colorized as "stderror" (blue, by
 default). You can customize the colors according to your taste, guided by the
-color table made by the command `show256Colors()`.
+color table made by the command `show256Colors()`. You can also set the colors
+to any arbitrary string. In this case, it is up to you to set valid values.
 
 The package cannot be on CRAN because it changes code already loaded by R and
 this is prohibited by the *CRAN Repository Policy*. The package replaces the
 functions that output results and messages to R Console, and this is necessary
 because we cannot colorize the output without replacing these functions.
 
-You can intall the package by running the following commands in a terminal
+You can install the package by running the following commands in a terminal
 emulator:
 
 ```

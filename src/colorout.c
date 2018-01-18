@@ -41,9 +41,9 @@ static void *save_R_Consolefile;
 
 static char crnormal[64], crnumber[64], crnegnum[64], crdate[64], crstring[64],
             crconst[64], crstderr[64], crwarn[64], crerror[64],
-            crlogicalF[64], crlogicalT[64], crinfinite[64], crzero[64];
+            crlogicalF[64], crlogicalT[64], crinfinite[64], crindex[64], crzero[64];
 static int normalsize, numbersize, negnumsize, datesize, stringsize, constsize,
-           logicalTsize, logicalFsize, infinitesize, zerosize;
+           logicalTsize, logicalFsize, infinitesize, indexsize, zerosize;
 static int colors_initialized = 0;
 static int colorout_initialized = 0;
 
@@ -91,6 +91,28 @@ static int iszero(const char * b, int i, int len)
     else
         return 0;
 }
+
+static int isindex(const char * b, int i, int len)
+{
+    // Element of unnamed list
+    if(i > 1 && b[i-2] == '[')
+        return 0;
+
+    if(b[i] == ','){
+        i++;
+        if(!(b[i] >= '0' && b[i] <= '9'))
+            return 0;
+    }
+    while(i < len && b[i] >= '0' && b[i] <= '9')
+        i++;
+
+    // Vector or matrix index?
+    if (b[i] == ']' || (b[i] == ',' && b[i+1] == ']'))
+        return 1;
+    else
+        return 0;
+}
+
 
 
 static int isdate(const char * b, int i, int len)
@@ -167,7 +189,7 @@ void colorout_SetZero(double *zr)
 void colorout_SetColors(char **normal, char **number, char **negnum,
         char **datenum, char **string, char **constant, char **stderror,
         char **warn, char **error, char **logicalT, char **logicalF,
-        char **infinite, char **zero, int *verbose, int *newline)
+        char **infinite, char **index, char **zero, int *verbose)
 {
     strncpy(crnormal, normal[0], 63);
     strncpy(crnumber, number[0], 63);
@@ -181,6 +203,7 @@ void colorout_SetColors(char **normal, char **number, char **negnum,
     strncpy(crlogicalT, logicalT[0], 63);
     strncpy(crlogicalF, logicalF[0], 63);
     strncpy(crinfinite, infinite[0], 63);
+    strncpy(crindex, index[0], 63);
     strncpy(crzero,     zero[0], 63);
 
     normalsize = strlen(crnormal);
@@ -192,24 +215,19 @@ void colorout_SetColors(char **normal, char **number, char **negnum,
     logicalTsize = strlen(crlogicalT);
     logicalFsize = strlen(crlogicalF);
     infinitesize = strlen(crinfinite);
+    indexsize = strlen(crindex);
     zerosize     = strlen(crzero);
 
     if(*verbose){
-        char buf1[64];
-        char buf2[512];
-        char buf3[512];
-        sprintf(buf1, "%snormal\033[0m, ", crnormal);
+        printf("%snormal\033[0m ", crnormal);
         if(hlzero)
-            sprintf(buf2, "%sx[x<=-%g]\033[0m, %sx[abs(x)<%g]\033[0m, %sx[x>=%g]\033[0m, %s19/01/2038 03:14:07\033[0m,",
-                    crnegnum, too_small, crzero, too_small, crnumber, too_small, crdate);
+            printf("%sx[x<=-%g]\033[0m %sx[abs(x)<%g]\033[0m %sx[x>=%g]\033[0m ",
+                    crnegnum, too_small, crzero, too_small, crnumber, too_small);
         else
-            sprintf(buf2, "%sx[x<0]\033[0m, %sx[x>=0]\033[0m, %s19/01/2038 03:14:07\033[0m,", crnegnum, crnumber, crdate);
-        sprintf(buf3, "%s\"string\"\033[0m, %sNA/NaN/NULL\033[0m, %sFALSE\033[0m, %sTRUE\033[0m, %sInf\033[0m, %sstderror\033[0m, %swarn\033[0m, %serror\033[0m.\n",
-                crstring, crconst, crlogicalF, crlogicalT, crinfinite, crstderr, crwarn, crerror);
-        if(*newline)
-            printf("%s%s\n%s", buf1, buf2, buf3);
-        else
-            printf("%s%s %s", buf1, buf2, buf3);
+            printf("%sx[x<0]\033[0m %sx[x>=0]\033[0m ", crnegnum, crnumber);
+
+        printf("%s19/01/2038 03:14:07\033[0m %s\"string\"\033[0m\n%sNA/NaN/NULL\033[0m %sFALSE\033[0m %sTRUE\033[0m %sInf\033[0m %s[index]\033[0m %sstderror\033[0m %swarn\033[0m %serror\033[0m\n",
+                crdate, crstring, crconst, crlogicalF, crlogicalT, crinfinite, crindex, crstderr, crwarn, crerror);
     }
 }
 
@@ -322,6 +340,23 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
+            } else if(bbuf[i] == '[' && ((bbuf[i+1] >= '0' && bbuf[i+1] <= '9') || bbuf[i+1] == ',') && isindex(bbuf, i+1, len)){
+                strcat(newbuf, crindex);
+                j += indexsize;
+                newbuf[j] = bbuf[i];
+                i++;
+                j++;
+                while(bbuf[i] != ']'){
+                    if(j > l)
+                        newbuf = colorout_make_bigger(newbuf, &l);
+                    newbuf[j] = bbuf[i];
+                    i++;
+                    j++;
+                }
+                newbuf[j] = bbuf[i];
+                i++;
+                strcat(newbuf, crnormal);
+                j += normalsize + 1;
                 /* NULL */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'U' && bbuf[i+2] == 'L' && bbuf[i+3] == 'L'
                     && (bbuf[i+4] < 'A' || (bbuf[i+4] > 'Z' && bbuf[i+4] < 'a') || bbuf[i+4] > 'z')){
@@ -517,43 +552,29 @@ void colorout_ColorOutput()
             strcpy(crdate,   "\033[1;179}");
             strcpy(crstring, "\033[1;85}");
             strcpy(crconst,  "\033[1;35}");
-            strcpy(crstderr, "\033[1;33}");
+            strcpy(crstderr, "\033[1;213}");
             strcpy(crwarn,   "\033[1;1}");
             strcpy(crerror,  "\033[2;1}\033[1;7}");
             strcpy(crlogicalT, "\033[1;78}");
             strcpy(crlogicalF, "\033[1;203}");
             strcpy(crinfinite, "\033[1;39}");
+            strcpy(crindex, "\033[1;30}");
             strcpy(crzero,     "\033[1;226}");
         } else {
-            if(strstr(getenv("TERM"), "256")){
-                strcpy(crnormal, "\033[0;38;5;40m");
-                strcpy(crnumber, "\033[0;38;5;214m");
-                strcpy(crnegnum, "\033[0;38;5;209m");
-                strcpy(crdate,   "\033[0;38;5;179m");
-                strcpy(crstring, "\033[0;38;5;85m");
-                strcpy(crconst,  "\033[0;38;5;35m");
-                strcpy(crstderr, "\033[0;38;5;33m");
-                strcpy(crwarn,   "\033[0;1;38;5;1m");
-                strcpy(crerror,  "\033[0;48;5;1;38;5;15m");
-                strcpy(crlogicalT, "\033[0;38;5;78m");
-                strcpy(crlogicalF, "\033[0;38;5;203m");
-                strcpy(crinfinite, "\033[0;38;5;39m");
-                strcpy(crzero,     "\033[0;38;5;226m");
-            } else {
-                strcpy(crnormal, "\033[32m");
-                strcpy(crnumber, "\033[33m");
-                strcpy(crnegnum, "\033[33m");
-                strcpy(crdate,   "\033[33m");
-                strcpy(crstring, "\033[36m");
-                strcpy(crconst,  "\033[35m");
-                strcpy(crstderr, "\033[34m");
-                strcpy(crwarn,   "\033[1;31m");
-                strcpy(crerror,  "\033[41;37m");
-                strcpy(crlogicalT, "\033[35m");
-                strcpy(crlogicalF, "\033[35m");
-                strcpy(crinfinite, "\033[35m");
-                strcpy(crzero,     "\033[33m");
-            }
+            strcpy(crnormal, "\033[0;38;5;40m");
+            strcpy(crnumber, "\033[0;38;5;214m");
+            strcpy(crnegnum, "\033[0;38;5;209m");
+            strcpy(crdate,   "\033[0;38;5;179m");
+            strcpy(crstring, "\033[0;38;5;85m");
+            strcpy(crconst,  "\033[0;38;5;35m");
+            strcpy(crstderr, "\033[0;38;5;213m");
+            strcpy(crwarn,   "\033[0;1;38;5;1m");
+            strcpy(crerror,  "\033[0;48;5;1;38;5;15m");
+            strcpy(crlogicalT, "\033[0;38;5;78m");
+            strcpy(crlogicalF, "\033[0;38;5;203m");
+            strcpy(crinfinite, "\033[0;38;5;39m");
+            strcpy(crindex, "\033[0;38;5;30m");
+            strcpy(crzero,     "\033[0;38;5;226m");
         }
         normalsize = strlen(crnormal);
         numbersize = strlen(crnumber);
@@ -564,6 +585,7 @@ void colorout_ColorOutput()
         logicalTsize = strlen(crlogicalT);
         logicalFsize = strlen(crlogicalF);
         infinitesize = strlen(crinfinite);
+        indexsize = strlen(crindex);
         zerosize     = strlen(crzero);
         colors_initialized = 1;
     }

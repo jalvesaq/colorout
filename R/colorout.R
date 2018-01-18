@@ -79,24 +79,33 @@ noColorOut <- function()
     return (invisible(NULL))
 }
 
-GetColorCode <- function(x, name, maxcolor)
+GetColorCode <- function(x, name)
 {
+    fname <- "setOutputColors: "
     if(!is.character(x) && !is.numeric(x))
-        stop(gettextf("The value of '%s' must be either a number correspoding to an ANSI escape code or a character string.", name, domain = "R-colorout"))
+        stop(paste0(fname,
+                    gettextf("The value of '%s' must be either a number correspoding to an ANSI escape code or a character string.",
+                             name, domain = "R-colorout")))
 
     if(is.character(x) && length(x) != 1)
-        stop(gettextf("'%s' must be a character vector of length 1", name, domain = "R-colorout"))
+        stop(paste0(fname,
+                    gettextf("'%s' must be a character vector of length 1",
+                             name, domain = "R-colorout")))
 
     if(is.character(x)){
+        if(nchar(x, type = "bytes") > 63)
+            stop(paste0(fname,
+                        gettextf("'%s' must have no more than 63 characters.",
+                                 name, domain = "R-colorout")))
         colstr <- x
     } else {
-        x[x > maxcolor] <- 0
+        x[x > 255] <- 0
         x[x < 0] <- 0
         if(length(x) < 3)
             x <- c(rep(0, 3 - length(x)), x)
 
         ## if "fbterm" && maxcolour = 255 (osx has "xterm-256color")
-        if(Sys.getenv("TERM") == "fbterm" && maxcolor == 255){
+        if(Sys.getenv("TERM") == "fbterm" && max(x) > 7){
             colstr <- ""
             if(x[2])
                 colstr <- paste0("\033[2;", x[2], "}")
@@ -106,27 +115,28 @@ GetColorCode <- function(x, name, maxcolor)
             colstr <- "\033[0"
             if(x[1])
                 colstr <- paste0(colstr, ";", x[1])
-            if(maxcolor == 255)
-                txt2 <- ";48;5;"
-            else
-                txt2 <- ";4"
-            if(x[2])
-                colstr <- paste0(colstr, txt2, x[2])
-            if(maxcolor == 255)
-                txt3 <- ";38;5;"
-            else
-                txt3 <- ";3"
-            if(x[3])
-                colstr <- paste0(colstr, txt3, x[3])
+            if(max(x) > 7){
+                if(x[2])
+                    colstr <- paste0(colstr, ";48;5;", x[2])
+                if(x[3])
+                    colstr <- paste0(colstr, ";38;5;", x[3])
+            } else {
+                if(x[2])
+                    colstr <- paste0(colstr, ";4", x[2])
+                if(x[3])
+                    colstr <- paste0(colstr, ";3", x[3])
+            }
             colstr <- paste0(colstr, "m")
         }
     }
     colstr
 }
 
-setOutputColorsX <- function(normal, negnum, zero, number, date, string,
-                             const, false, true, infinite, stderror, warn,
-                             error, verbose = TRUE, zero.limit, maxcolor)
+setOutputColors <- function(normal = 40, negnum = 209, zero = 226,
+                            number = 214, date = 179, string = 85, const = 35,
+                            false = 203, true = 78, infinite = 39, index = 30,
+                            stderror = 213, warn = c(1, 0, 1),
+                            error = c(1, 15), verbose = TRUE, zero.limit = NA)
 {
     if(!is.logical(verbose))
         verbose <- FALSE
@@ -141,55 +151,34 @@ setOutputColorsX <- function(normal, negnum, zero, number, date, string,
 
     newline <- as.integer(.Options$width < c(110, 140)[is.na(zero.limit) + 1])
 
-    crnormal   <- GetColorCode(normal,      "normal",  maxcolor)
-    crnegnum   <- GetColorCode(negnum,      "negnum",  maxcolor)
-    crzero     <- GetColorCode(zero,          "zero",  maxcolor)
-    crnumber   <- GetColorCode(number,      "number",  maxcolor)
-    crdate     <- GetColorCode(date,          "date",  maxcolor)
-    crstring   <- GetColorCode(string,      "string",  maxcolor)
-    crconst    <- GetColorCode(const,        "const",  maxcolor)
-    crfalse    <- GetColorCode(false,        "false",  maxcolor)
-    crtrue     <- GetColorCode(true,          "true",  maxcolor)
-    crinfinite <- GetColorCode(infinite,  "infinite",  maxcolor)
-    crstderr   <- GetColorCode(stderror,  "stderror",  maxcolor)
-    crwarn     <- GetColorCode(warn,          "warn",  maxcolor)
-    crerror    <- GetColorCode(error,        "error",  maxcolor)
+    crnormal   <- GetColorCode(normal,      "normal")
+    crnegnum   <- GetColorCode(negnum,      "negnum")
+    crzero     <- GetColorCode(zero,          "zero")
+    crnumber   <- GetColorCode(number,      "number")
+    crdate     <- GetColorCode(date,          "date")
+    crstring   <- GetColorCode(string,      "string")
+    crconst    <- GetColorCode(const,        "const")
+    crfalse    <- GetColorCode(false,        "false")
+    crtrue     <- GetColorCode(true,          "true")
+    crinfinite <- GetColorCode(infinite,  "infinite")
+    crindex    <- GetColorCode(index,        "index")
+    crstderr   <- GetColorCode(stderror,  "stderror")
+    crwarn     <- GetColorCode(warn,          "warn")
+    crerror    <- GetColorCode(error,        "error")
 
     .C("colorout_SetColors", crnormal, crnumber, crnegnum, crdate, crstring,
-       crconst, crstderr, crwarn, crerror, crtrue, crfalse, crinfinite,
+       crconst, crstderr, crwarn, crerror, crtrue, crfalse, crinfinite, crindex,
        crzero, as.integer(verbose), as.integer(newline), PACKAGE = "colorout")
 
     return(invisible(NULL))
 }
 
-setOutputColors256 <- function(normal = 40, negnum = 209, zero = 226,
-                               number = 214, date = 179, string = 85,
-                               const = 35, false = 203, true = 78,
-                               infinite = 39, stderror = 33,
-                               warn = c(1, 0, 1), error = c(1, 15),
-                               verbose = TRUE, zero.limit = NA)
+setOutputColors256 <- function(...)
 {
-
-    setOutputColorsX(normal, negnum, zero, number, date, string, const, false,
-                     true, infinite, stderror, warn, error, verbose,
-                     zero.limit, 255)
-
-        return (invisible(NULL))
-}
-
-setOutputColors <- function(normal = 2, negnum = 3, zero = 3, number = 3,
-                            date = 3, string = 6, const = 5, false = 5,
-                            true = 2, infinite = 5, stderror = 4,
-                            warn = c(1, 0, 1), error = c(1, 7),
-                            verbose = TRUE, zero.limit = NA
-                            )
-{
-
-    setOutputColorsX(normal, negnum, zero, number, date, string, const, false,
-                     true, infinite, stderror, warn, error, verbose,
-                     zero.limit, 8)
-
-    return(invisible(NULL))
+    # TODO: Uncomment in the future:
+    # warning("The function 'setOutputColors256' is deprecated. Please, call 'setOutputColors' with the same arguments.")
+    setOutputColors(...)
+    return (invisible(NULL))
 }
 
 unsetZero <- function()

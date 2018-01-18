@@ -14,7 +14,7 @@ Colorize R output on terminal emulators
   (e.g., Linux and OS X) and it is running interactively in a terminal
   emulator. The terminal emulator might have been called by a text editor,
   such as Vim, Gedit, Kate or Geany.
- 
+
   Homepage: \url{https://github.com/jalvesaq/colorout}
 
   Screenshot:
@@ -25,14 +25,14 @@ Colorize R output on terminal emulators
 
   The terminal must support Select Graphic Rendition (SGR, also known as ANSI
   escape codes or sequences), otherwise you may see garbage like this:
- 
+
   \preformatted{
     > rnorm(5)
     [32m[ [33m1 [32m] [0m [32m  [33m0.07574585 [32m [0m [32m
     [33m0.88167822 [32m [0m [32m  [33m0.60788656 [32m [0m [32m
     [33m1.13590951 [32m [0m [32m  [33m1.07758879 [32m [0m [32m [0m
   }
- 
+
   The package contains a C library with a function that replaces the default
   Rstd_WriteConsoleEx which, when enabled, is responsible for printing
   messages in the Console when R is running in interactive mode.
@@ -59,7 +59,7 @@ Colorize R output on terminal emulators
   running interactively. If your terminal emulator is capable of displaying
   ANSI colors but is not being recognized you may put the following in your
   \samp{~/.Rprofile}:
-  
+
   \preformatted{
     if(interactive()){
         options(colorout.anyterm = TRUE)
@@ -80,14 +80,14 @@ Colorize R output on terminal emulators
   If \code{colorout.verbose > 0}, the package will display a warning if the
   output is not going to be colorized.
 
-  If \samp{TERM} environment variable contains the substring \samp{"256"}, the
-  package will use a 256 colors scheme to colorize the output. Otherwise, it
-  will use a 16 colors scheme.
+  A 256 color scheme is used by default. If your terminal emulator only
+  supports 8 colors, you will have to set your own color scheme. Please, see
+  the example at \link{setOutputColors}.
 }
 
 \seealso{
 \link{ColorOut}, \link{noColorOut}, \link{setOutputColors},
-\link{setOutputColors256}, \link{show256Colors} and \link{setZero}.
+\link{show256Colors} and \link{setZero}.
 The package \pkg{setwidth} updates the value of \code{options("width")}
 automatically when the terminal is resized.
 }
