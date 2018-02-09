@@ -3,8 +3,8 @@
 # It is distributed under the GNU General Public License.
 # See the file ../LICENSE for details.
 #
-# (c) 2011-2014 Jakson Aquino: jalvesaq@gmail.com
-# (c)      2014 Dominique-Laurent Couturier: dlc48@medschl.cam.ac.uk
+# (c) 2011-2018 Jakson Aquino: jalvesaq@gmail.com
+# (c) 2014-2018 Dominique-Laurent Couturier: dlc48@medschl.cam.ac.uk
 #
 ###############################################################
 
