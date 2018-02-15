@@ -79,7 +79,7 @@ static int iszero(const char * b, int i, int len)
     double x;
     int j;
     j = i;
-    charnum = (char*)calloc(sizeof(char),len);
+    charnum = (char*)calloc(sizeof(char),len+1);
     while(i<len){
         charnum[i-j] = b[i];
         i++;
