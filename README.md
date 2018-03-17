@@ -10,8 +10,8 @@ identified and wrapped by special ansi scape codes that are interpreted by
 terminal emulators as commands to colorize the output. R's `stderr` is also
 parsed to identify the expressions "warning" and "error" and their
 translations to many languages. If these expressions are found, the output is
-colorized accordingly; otherwise, it is colorized as "stderror" (blue, by
-default). You can customize the colors according to your taste, guided by the
+colorized accordingly; otherwise, it is colorized as "stderror" (magenta, by
+default). You can customize the colors according to your preference, guided by the
 color table made by the command `show256Colors()`. You can also set the colors
 to any arbitrary string. In this case, it is up to you to set valid values.
 
