@@ -82,6 +82,8 @@ noColorOut <- function()
 GetColorCode <- function(x, name)
 {
     fname <- "setOutputColors: "
+    if(length(x) == 1 && is.na(x))
+        x <- ""
     if(!is.character(x) && !is.numeric(x))
         stop(paste0(fname,
                     gettextf("The value of '%s' must be either a number correspoding to an ANSI escape code or a character string.",
@@ -99,31 +101,35 @@ GetColorCode <- function(x, name)
                                  name, domain = "R-colorout")))
         colstr <- x
     } else {
-        x[x > 255] <- 0
-        x[x < 0] <- 0
+        if(length(x) > 3)
+            stop(paste0(fname,
+                        gettextf("'%s' must be a number vector of at most 3 elements.",
+                                 name, domain = "R-colorout")))
+        x[x > 255] <- NA
+        x[x < 0] <- NA
         if(length(x) < 3)
-            x <- c(rep(0, 3 - length(x)), x)
+            x <- c(rep(NA, 3 - length(x)), x)
 
         ## if "fbterm" && maxcolour = 255 (osx has "xterm-256color")
         if(Sys.getenv("TERM") == "fbterm" && max(x) > 7){
             colstr <- ""
-            if(x[2])
+            if(!is.na(x[2]))
                 colstr <- paste0("\033[2;", x[2], "}")
-            if(x[3])
+            if(!is.na(x[3]))
                 colstr <- paste0(colstr, "\033[1;", x[3], "}")
         } else {
             colstr <- "\033[0"
-            if(x[1])
+            if(!is.na(x[1]) && x[1] > 0 && x[1] < 8)
                 colstr <- paste0(colstr, ";", x[1])
-            if(max(x) > 7){
-                if(x[2])
+            if(max(x, na.rm = TRUE) > 7){
+                if(!is.na(x[2]))
                     colstr <- paste0(colstr, ";48;5;", x[2])
-                if(x[3])
+                if(!is.na(x[3]))
                     colstr <- paste0(colstr, ";38;5;", x[3])
             } else {
-                if(x[2])
+                if(!is.na(x[2]))
                     colstr <- paste0(colstr, ";4", x[2])
-                if(x[3])
+                if(!is.na(x[3]))
                     colstr <- paste0(colstr, ";3", x[3])
             }
             colstr <- paste0(colstr, "m")
@@ -135,8 +141,8 @@ GetColorCode <- function(x, name)
 setOutputColors <- function(normal = 40, negnum = 209, zero = 226,
                             number = 214, date = 179, string = 85, const = 35,
                             false = 203, true = 78, infinite = 39, index = 30,
-                            stderror = 213, warn = c(1, 0, 1),
-                            error = c(1, 15), verbose = TRUE, zero.limit = NA)
+                            stderror = 213, warn = c(1, 16, 196),
+                            error = c(160, 231), verbose = TRUE, zero.limit = NA)
 {
     if(!is.logical(verbose))
         verbose <- FALSE

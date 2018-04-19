@@ -11,7 +11,7 @@ setOutputColors(normal = 40, negnum = 209, zero = 226,
                 number = 214, date = 179, string = 85,
                 const = 35, false = 203, true = 78,
                 infinite = 39, index = 30, stderror = 213,
-                warn = c(1, 0, 1), error = c(1, 15),
+                warn = c(1, 16, 196), error = c(160, 231),
                 verbose = TRUE, zero.limit = NA)
 }
 \arguments{
@@ -101,6 +101,8 @@ setOutputColors(normal = c(0, 0, 18), number = c(0, 0, 90),
 setOutputColors(normal = 39, negnum = 183, zero = 114, number = 51,
                 date = 43, string = 79, const = 75, zero.limit = 0.1)
 setOutputColors(normal = 202, number = 214, zero = 220, negnum = 209,
+                date = 184, string = 172, const = 179, zero.limit = 0.01)
+setOutputColors(normal = 202, number = 214, zero = NA, negnum = 209,
                 date = 184, string = 172, const = 179, zero.limit = 0.01)
 
 # True color example:
