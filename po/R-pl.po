@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: colorout 1.1-1\n"
+"Project-Id-Version: colorout 1.2-0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-18 12:18\n"
 "PO-Revision-Date: 2015-12-28 12:37+0100\n"
@@ -23,20 +23,21 @@ msgstr ""
 msgid "The output colorization was canceled."
 msgstr "Kolorowanie wyjścia zostało anulowane."
 
-#, fuzzy
 msgid ""
 "The value of '%s' must be either a number correspoding to an ANSI escape "
 "code or a character string."
-msgstr "Wartość '%s' musi być liczbą odpowiadającą sekwencji specjalnej ANSI."
+msgstr ""
+"Wartość '%s' musi być albo liczbą odpowiadającą sekwencji specjalnej ANSI "
+"lub łańcuchem tekstowym."
 
 msgid "'%s' must be a character vector of length 1"
-msgstr ""
+msgstr "'%s' musi być wektorem tekstowym o długośi 1"
 
 msgid "'%s' must have no more than 63 characters."
-msgstr ""
+msgstr "'%s' musi mieć nie więcej niż 63 znaki."
 
 msgid "z must be a real number."
-msgstr ""
+msgstr "'z' musi być liczbą rzeczywistą."
 
 #~ msgid "'verbose' must be of mode 'logical'."
 #~ msgstr "'verbose' musi być typu 'logical'."
