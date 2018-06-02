@@ -27,7 +27,7 @@
     if(msg == "OK")
         ColorOut()
     else if(getOption("colorout.verbose") > 0){
-        msg <- paste("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.",
+        msg <- paste(gettext("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.", domain = "R-colorout"),
                      msg)
         warning(msg, call. = FALSE, immediate. = TRUE)
     }
@@ -45,10 +45,10 @@ testTermForColorOut <- function()
         return("OK")
 
     if(interactive() == FALSE && getOption("colorout.noninteractive") == FALSE)
-        return("Not in an interactive session.\n")
+        return(gettext("Not in an interactive session.\n", domain = "R-colorout"))
 
     if(isatty(stdout()) == FALSE && getOption("colorout.notatty") == FALSE && Sys.getenv("RSTUDIO") == "")
-        return("isatty(stdout()) returned FALSE.\n")
+        return(gettext("isatty(stdout()) returned FALSE.\n", domain = "R-colorout"))
 
     termenv <- Sys.getenv("TERM")
 
@@ -59,7 +59,7 @@ testTermForColorOut <- function()
         if(getOption("colorout.dumb"))
             return("OK")
 
-    return(paste0("Sys.getenv('TERM') returned '", Sys.getenv("TERM"), "'."))
+    return(gettextf("Sys.getenv('TERM') returned '%s'.", Sys.getenv("TERM"), domain = "R-colorout"))
 }
 
 ColorOut <- function()
