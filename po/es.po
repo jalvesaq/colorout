@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-04 21:06+0200\n"
+"POT-Creation-Date: 2018-06-04 16:27-0300\n"
 "PO-Revision-Date: 2014-05-02 13:47-0300\n"
 "Last-Translator: Jakson Aquino <jalvesaq@gmail.com>\n"
 "Language-Team: Spanish\n"
@@ -16,22 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout.c:281 tmp_colorout.c:255
+#: colorout.c:281
 msgid "Warning"
 msgstr "Aviso"
 
-#: colorout.c:283 tmp_colorout.c:257
+#: colorout.c:283
 msgid "WARNING"
 msgstr "AVISO"
 
-#: colorout.c:285 tmp_colorout.c:259
+#: colorout.c:285
 msgid "Lost warning messages"
 msgstr "Mensajes de aviso perdidos"
 
-#: colorout.c:293 tmp_colorout.c:267
+#: colorout.c:293
 msgid "Error"
 msgstr "Error"
 
-#: colorout.c:295 tmp_colorout.c:269
+#: colorout.c:295
 msgid "ERROR"
 msgstr "ERROR"

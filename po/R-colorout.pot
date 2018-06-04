@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: colorout 1.2-0\n"
-"POT-Creation-Date: 2018-06-04 21:06\n"
+"POT-Creation-Date: 2018-06-04 16:27\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10,72 +10,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettextf("'%s' must be a character vector of length 1", name, domain = "R-colorout")
-
-msgid "'%s' must be a character vector of length 1"
+msgid "The R output will not be colorized because it seems that your terminal does not support ANSI escape codes."
 msgstr ""
-
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettextf("'%s' must be a number vector of at most 3 elements.", name, domain = "R-colorout")
-
-msgid "'%s' must be a number vector of at most 3 elements."
-msgstr ""
-
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettextf("'%s' must have no more than 63 characters.", name, domain = "R-colorout")
-
-msgid "'%s' must have no more than 63 characters."
-msgstr ""
-
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettext("Not in an interactive session.\n", domain = "R-colorout")
 
 msgid "Not in an interactive session."
 msgstr ""
 
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettextf("Sys.getenv('TERM') returned '%s'.", Sys.getenv("TERM"), domain = "R-colorout")
+msgid "isatty(stdout()) returned FALSE."
+msgstr ""
 
 msgid "Sys.getenv('TERM') returned '%s'."
 msgstr ""
 
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettext("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.", domain = "R-colorout")
-
-msgid "The R output will not be colorized because it seems that your terminal does not support ANSI escape codes."
-msgstr ""
-
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettext("The output colorization was canceled.", domain = "R-colorout")
-
 msgid "The output colorization was canceled."
 msgstr ""
-
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettextf("The value of '%s' must be either a number correspoding to an ANSI escape code or a character string.", name, domain = "R-colorout")
 
 msgid "The value of '%s' must be either a number correspoding to an ANSI escape code or a character string."
 msgstr ""
 
-
-#: R/colorout.R: 0
-#. R/colorout.R: gettext("isatty(stdout()) returned FALSE.\n", domain = "R-colorout")
-
-msgid "isatty(stdout()) returned FALSE."
+msgid "'%s' must be a character vector of length 1"
 msgstr ""
 
+msgid "'%s' must have no more than 63 characters."
+msgstr ""
 
-#: R/colorout.R: 0
-#. R/colorout.R: gettext("z must be a real number.", domain = "R-colorout")
+msgid "'%s' must be a number vector of at most 3 elements."
+msgstr ""
 
 msgid "z must be a real number."
 msgstr ""
