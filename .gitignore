@@ -2,3 +2,8 @@
 *.o
 *.so
 *.po~
+.Rproj.user
+.RData
+.Rbuildignore
+.Rhistory
+colorout.Rproj
