@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colorout 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-18 12:16-0300\n"
+"POT-Creation-Date: 2018-06-04 21:06+0200\n"
 "PO-Revision-Date: 2014-05-02 13:48-0300\n"
 "Last-Translator: Jakson Aquino <jalvesaq@gmail.com>\n"
 "Language-Team: Korean\n"
@@ -16,22 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: colorout.c:281
+#: colorout.c:281 tmp_colorout.c:255
 msgid "Warning"
 msgstr "에서"
 
-#: colorout.c:283
+#: colorout.c:283 tmp_colorout.c:257
 msgid "WARNING"
 msgstr "에서"
 
-#: colorout.c:285
+#: colorout.c:285 tmp_colorout.c:259
 msgid "Lost warning messages"
 msgstr "경고메시지들이 손실되었습니다"
 
-#: colorout.c:293
+#: colorout.c:293 tmp_colorout.c:267
 msgid "Error"
 msgstr "에러"
 
-#: colorout.c:295
+#: colorout.c:295 tmp_colorout.c:269
 msgid "ERROR"
 msgstr "에러"
