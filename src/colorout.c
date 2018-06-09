@@ -100,14 +100,15 @@ static int isindex(const char * b, int i, int len)
 
     if(b[i] == ','){
         i++;
-        if(!(b[i] >= '0' && b[i] <= '9'))
+        if(!((b[i] >= '0' && b[i] <= '9') || b[i] == ' '))
             return 0;
     }
-    while(i < len && b[i] >= '0' && b[i] <= '9')
+    while(i < len && ((b[i] >= '0' && b[i] <= '9') || b[i] == ' '))
         i++;
 
     // Vector or matrix index?
-    if (b[i] == ']' || (b[i] == ',' && b[i+1] == ']'))
+    // Also check that the previous index is a digit
+    if ((b[i] == ']' && b[i-1] >= '0' && b[i-1] <= '9') || (b[i] == ',' && b[i+1] == ']' && b[i-1] >= '0' && b[i-1] <= '9'))
         return 1;
     else
         return 0;
@@ -340,7 +341,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
-            } else if(bbuf[i] == '[' && ((bbuf[i+1] >= '0' && bbuf[i+1] <= '9') || bbuf[i+1] == ',') && isindex(bbuf, i+1, len)){
+            } else if(bbuf[i] == '[' && ((bbuf[i+1] >= '0' && bbuf[i+1] <= '9') || bbuf[i+1] == ',' || bbuf[i+1] == ' ') && isindex(bbuf, i+1, len)){
                 strcat(newbuf, crindex);
                 j += indexsize;
                 newbuf[j] = bbuf[i];
