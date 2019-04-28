@@ -18,6 +18,7 @@ output is colorized accordingly; otherwise, it is colorized as "stderror"
 
 
 ### Customization
+
 You can customize the colors according to your preference, guided by the
 color table made by the command `show256Colors()`. 
 You can also set the colors to any arbitrary string. In this case, it is
@@ -25,6 +26,7 @@ up to you to set valid values.
 
 
 ### Installation
+
 You can install the package by running the following commands in a terminal
 emulator:
 
@@ -45,6 +47,7 @@ because we cannot colorize the output without replacing these functions.
 
 
 ### Previous Versions:
+
 Recently released versions are available at
 https://github.com/jalvesaq/colorout/releases and older versions are at
 https://drive.google.com/open?id=0ByMBQcSs9G7KYkotRGpRYjlLVDg
