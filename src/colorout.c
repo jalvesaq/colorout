@@ -46,6 +46,7 @@ static int normalsize, numbersize, negnumsize, datesize, stringsize, constsize,
            logicalTsize, logicalFsize, infinitesize, indexsize, zerosize;
 static int colors_initialized = 0;
 static int colorout_initialized = 0;
+static char *piece;
 
 static double too_small = 1e-12;
 static int hlzero = 0;
@@ -186,6 +187,25 @@ void colorout_SetZero(double *zr)
     too_small = *zr;
 }
 
+static int max(const int a, const int b)
+{
+    if(a > b)
+        return a;
+    return b;
+}
+
+static void alloc_piece()
+{
+    int maxsize;
+
+    maxsize = max(logicalTsize, logicalFsize);
+    maxsize = max(maxsize, constsize);
+    maxsize = max(maxsize, infinitesize);
+
+    if(piece != NULL)
+        free(piece);
+    piece = (char*)calloc(1, maxsize + 6 + normalsize);
+}
 
 void colorout_SetColors(char **normal, char **number, char **negnum,
         char **datenum, char **string, char **constant, char **stderror,
@@ -219,6 +239,8 @@ void colorout_SetColors(char **normal, char **number, char **negnum,
     indexsize = strlen(crindex);
     zerosize     = strlen(crzero);
 
+    alloc_piece();
+
     if(*verbose){
         printf("%snormal\033[0m ", crnormal);
         if(hlzero)
@@ -248,7 +270,6 @@ char *colorout_make_bigger(char *ptr, int *len)
 void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
 {
     char *newbuf, *bbuf;
-    char piece[64];
     int neednl, i, j, l;
 
     /* Do nothing if the output was already colorized by another package */
@@ -589,6 +610,8 @@ void colorout_ColorOutput()
         indexsize = strlen(crindex);
         zerosize     = strlen(crzero);
         colors_initialized = 1;
+
+        alloc_piece();
     }
 
     /* Replace Rstd_WriteConsoleEx() with colorout_R_WriteConsoleEx().
