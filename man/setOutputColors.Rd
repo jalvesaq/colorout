@@ -106,7 +106,11 @@ setOutputColors(normal = 202, number = 214, zero = NA, negnum = 209,
                 date = 184, string = 172, const = 179, zero.limit = 0.01)
 
 # True color example:
-setOutputColors(normal   = "\x1b[38;2;0;200;0m",
+# The color code starts with "\x1b[" and ends with "m"
+# 38;2 means "foreground"
+# 48;2 means "background"
+# valid values for red, green, and blue are integers between 0 and 255
+setOutputColors(normal   = "\x1b[38;2;0;200;0m",     # red = 0; green = 200; blue = 0
                 negnum   = "\x1b[38;2;255;200;0m",
                 zero     = "\x1b[38;2;255;255;0m",
                 number   = "\x1b[38;2;200;255;75m",
