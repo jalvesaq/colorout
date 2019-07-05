@@ -148,6 +148,20 @@ static int isdate(const char * b, int i, int len)
                 return 0;
         } else
             return 0;
+    } else if((len-i)>6){
+        /* YYYYxMM */
+        if(b[i+4]=='-'||b[i+4]=='/'){
+            if(b[i]   >= '1' && b[i]   <= '9' &&
+                    b[i+1] >= '0' && b[i+1] <= '9' &&
+                    b[i+2] >= '0' && b[i+2] <= '9' &&
+                    b[i+3] >= '0' && b[i+3] <= '9' &&
+                    b[i+5] >= '0' && b[i+5] <= '1' &&
+                    b[i+6] >= '0' && b[i+6] <= '9')
+                return 1;
+            else
+                return 0;
+        } else
+          return 0;
         /* wrong length */
     } else
         return 0;
