@@ -192,7 +192,7 @@ static int ispattern(const char * b, int i, int len, const pattern_t *p)
 {
     int n = 0;
     int j = i;
-    if((len-i) > p->cpldsize){
+    if((len-i) >= p->matchsize){
         while(n < p->cpldsize){
             if(p->compiled[n] == b[j]){
                 n++;
@@ -238,7 +238,6 @@ SEXP colorout_ListPatterns()
     while(p){
         SET_STRING_ELT(nms, i, mkChar(p->ptrn));
         SET_STRING_ELT(res, i, mkChar(p->color));
-
         p = p->next;
         i++;
     }
@@ -462,13 +461,14 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
         i = 0;
         j = normalsize;
         /* for all i smaller than obj length */
+        int haspttrn;
         while(i < len){
             if(j >= l)
                 newbuf = colorout_make_bigger(newbuf, &l);
             /* Custom patterns */
+            haspttrn = 0;
             if(P){
                 int psz = 0;
-                int haspttrn = 0;
                 pattern_t *p = P;
                 while(p){
                     psz = ispattern(bbuf, i, len, p);
@@ -489,6 +489,8 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 if(haspttrn)
                     continue;
             }
+            if(haspttrn)
+                continue;
             if(bbuf[i] == '"'){
                 strcat(newbuf, crstring);
                 j += stringsize;
