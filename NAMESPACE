@@ -1,6 +1,8 @@
 
 export("ColorOut", "noColorOut", "setOutputColors", "setOutputColors256",
-       "show256Colors", "setZero", "unsetZero", "addPattern", "printPatterns",
+       "show256Colors", "setZero", "unsetZero", "addPattern", "listPatterns",
        "deletePattern")
 
 importFrom("utils", "browseURL")
+
+S3method(print, coloroutPattern)

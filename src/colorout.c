@@ -11,6 +11,7 @@
 
 
 #include <R.h>  /* to include Rconfig.h */
+#include <Rinternals.h>
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
@@ -219,20 +220,31 @@ void colorout_SetZero(double *zr)
     too_small = *zr;
 }
 
-void colorout_PrintPatterns()
+SEXP colorout_ListPatterns()
 {
-    int max = 0;
+    int n = 0;
     pattern_t *p = P;
+
     while(p){
-        if(strlen(p->ptrn) > max)
-            max = strlen(p->ptrn);
+        n++;
         p = p->next;
     }
+
+    SEXP res = PROTECT(allocVector(STRSXP, n));
+    SEXP nms = PROTECT(allocVector(STRSXP, n));
+
     p = P;
+    int i = 0;
     while(p){
-        printf("%s%s\033[0m\n", p->color, p->ptrn);
+        SET_STRING_ELT(nms, i, mkChar(p->ptrn));
+        SET_STRING_ELT(res, i, mkChar(p->color));
+
         p = p->next;
+        i++;
     }
+    setAttrib(res, R_NamesSymbol, nms);
+    UNPROTECT(2);
+    return res;
 }
 
 void colorout_DeletePattern(char **pattern)

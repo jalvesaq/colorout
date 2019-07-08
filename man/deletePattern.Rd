@@ -26,4 +26,7 @@ deletePattern(pattern)
 \examples{
 # Slash separated date (YYYY-MM-DD):
 deletePattern("[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]")
+
+# Delete all user defined patterns:
+deletePattern(listPatterns())
 }

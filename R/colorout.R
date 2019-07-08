@@ -199,14 +199,23 @@ addPattern <- function(pattern, color)
 
 deletePattern <- function(pattern)
 {
-    .C("colorout_DeletePattern", pattern, PACKAGE = "colorout")
+    for(p in pattern)
+        .C("colorout_DeletePattern", p, PACKAGE = "colorout")
     return(invisible(NULL))
 }
 
-printPatterns <- function()
+print.coloroutPattern <- function(x, ...)
 {
-    .C("colorout_PrintPatterns", PACKAGE = "colorout")
-    return(invisible(NULL))
+    cat(paste0(attr(x, "color"), x, "\033[0m\n"), sep = "")
+}
+
+listPatterns <- function()
+{
+    p <- .Call("colorout_ListPatterns", PACKAGE = "colorout")
+    v <- names(p)
+    attr(v, "color") <- unname(p)
+    class(v) <- "coloroutPattern"
+    v
 }
 
 unsetZero <- function()
