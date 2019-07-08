@@ -235,12 +235,31 @@ void colorout_PrintPatterns()
     }
 }
 
+void colorout_DeletePattern(char **pattern)
+{
+    pattern_t *p = P;
+    pattern_t *prev = NULL;
+    pattern_t *next = NULL;
+    while(p){
+        next = p->next;
+        if(strcmp(*pattern, p->ptrn) == 0){
+            if(prev)
+                prev->next = p->next;
+            free(p->ptrn);
+            free(p->compiled);
+            free(p->color);
+            free(p);
+            if(p == P)
+                P = next;
+        } else {
+            prev = p;
+        }
+        p = next;
+    }
+}
+
 void colorout_AddPattern(char **pattern, char **color)
 {
-    /* TODO:
-     *    - Free all patterns on unload
-     *    - Delete custom defined pattern
-     */
     pattern_t *p = (pattern_t*)calloc(1, sizeof(pattern_t));
     p->ptrn = (char*)malloc(strlen(*pattern)+1);
     strcpy(p->ptrn, *pattern);

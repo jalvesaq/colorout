@@ -1,5 +1,6 @@
 
 export("ColorOut", "noColorOut", "setOutputColors", "setOutputColors256",
-"show256Colors", "setZero", "unsetZero", "addPattern", "printPatterns")
+       "show256Colors", "setZero", "unsetZero", "addPattern", "printPatterns",
+       "deletePattern")
 
 importFrom("utils", "browseURL")

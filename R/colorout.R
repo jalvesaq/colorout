@@ -197,6 +197,12 @@ addPattern <- function(pattern, color)
     return(invisible(NULL))
 }
 
+deletePattern <- function(pattern)
+{
+    .C("colorout_DeletePattern", pattern, PACKAGE = "colorout")
+    return(invisible(NULL))
+}
+
 printPatterns <- function()
 {
     .C("colorout_PrintPatterns", PACKAGE = "colorout")
