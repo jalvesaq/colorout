@@ -196,16 +196,28 @@ static int ispattern(const char * b, int i, int len, const pattern_t *p)
         while(n < p->cpldsize){
             if(p->compiled[n] == b[j]){
                 n++;
+                j++;
             } else if(p->compiled[n] == '\x02' && b[j] >= p->compiled[n+1] && b[j] <= p->compiled[n+2]){
                 n += 3;
+                j++;
+            } else if(p->compiled[n] == '\x03'){
+                n++;
+                if(p->compiled[n] == '\x02' && b[j] >= p->compiled[n+1] && b[j] <= p->compiled[n+2]){
+                    while(b[j] >= p->compiled[n+1] && b[j] <= p->compiled[n+2])
+                        j++;
+                    n += 3;
+                } else {
+                    while(p->compiled[n] == b[j])
+                        j++;
+                    n++;
+                }
             } else {
                 break;
             }
-            j++;
         }
     }
-    if(p->matchsize == (j - i))
-        return p->matchsize;
+    if(n == p->cpldsize && (j - i) >= p->matchsize)
+        return (j - i);
     return 0;
 }
 
@@ -227,6 +239,17 @@ SEXP colorout_ListPatterns()
 
     while(p){
         n++;
+        /*
+        printf("pattern = %s\nmatch size = %d\ncompiled = ", p->ptrn, p->matchsize);
+        for(int i = 0; i < strlen(p->compiled); i++)
+            if(p->compiled[i] == '\x02')
+                printf("%s2\033[0m", crnumber);
+            else if (p->compiled[i] == '\x03')
+                printf("%s3\033[0m", crnumber);
+            else
+                printf("%c", p->compiled[i]);
+        printf("\ncompiled size = %d\n", p->cpldsize);
+        */
         p = p->next;
     }
 
@@ -282,18 +305,34 @@ void colorout_AddPattern(char **pattern, char **color)
     int l = strlen(p->ptrn);
     p->matchsize = 0;
     while(i < l){
-        if(i < (l - 4) && p->ptrn[i] == '[' && p->ptrn[i + 2] == '-' && p->ptrn[i + 4] == ']'){
+        if(i > 0 && p->ptrn[i] == '*' && p->ptrn[i-1] != '\\'){
+            // Put x03 before the pattern to be repeated
+            if(i > 4 && p->ptrn[i-5] == '[' && p->ptrn[i-3] == '-' && p->ptrn[i-1] == ']'){
+                p->compiled[j] = p->compiled[j-1];
+                p->compiled[j-1] = p->compiled[j-2];
+                p->compiled[j-2] = p->compiled[j-3];
+                p->compiled[j-3] = '\x03';
+                j++;
+                i++;
+            } else {
+                p->compiled[j] = p->compiled[j-1];
+                p->compiled[j-1] = '\x03';
+                j++;
+                i++;
+            }
+        } else if(i < (l - 4) && p->ptrn[i] == '[' && p->ptrn[i + 2] == '-' && p->ptrn[i + 4] == ']'){
             p->compiled[j] = '\x02';
             p->compiled[j+1] = p->ptrn[i+1];
             p->compiled[j+2] = p->ptrn[i+3];
             i += 5;
             j += 3;
+            p->matchsize++;
         } else {
             p->compiled[j] = p->ptrn[i];
             i++;
             j++;
+            p->matchsize++;
         }
-        p->matchsize++;
     }
     p->cpldsize = strlen(p->compiled);
 
