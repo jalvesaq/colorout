@@ -11,6 +11,7 @@
 
 
 #include <R.h>  /* to include Rconfig.h */
+#include <Rinternals.h>
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
@@ -51,6 +52,18 @@ static char *piece;
 static double too_small = 1e-12;
 static int hlzero = 0;
 
+typedef struct pattern {
+    char *ptrn;
+    char *compiled;
+    int cpldsize;
+    int matchsize;
+    char *color;
+    int crsize;
+    struct pattern * next;
+} pattern_t;
+
+pattern_t *P = NULL;
+
 static int isnumber(const char * b, int i, int len)
 {
     int l = len;
@@ -58,7 +71,7 @@ static int isnumber(const char * b, int i, int len)
         l = i + 5;
     i++;
     while(i < l){
-        if(((b[i] > 0   && b[i] < '0') || (b[i] > '9' && b[i] < 'A') || (b[i] > 'Z' && b[i] < 'a') || (b[i] > 'z' && b[i] > 0)) &&
+        if(((b[i] > 0 && b[i] < '0') || (b[i] > '9' && b[i] < 'A') || (b[i] > 'Z' && b[i] < 'a') || (b[i] > 'z' && b[i] > 0)) &&
                 b[i] != '.' && b[i] != ',' &&
                 !(b[i] == 'e' && (i + 2) < len && (b[i+1] == '-' || b[i+1] == '+') && b[i+2] >= '0' && b[i+2] <= '9') &&
                 !(b[i-1] == 'e' && (b[i] == '-' || b[i] == '+')))
@@ -121,8 +134,8 @@ static int isdate(const char * b, int i, int len)
 {
     if((len-i)>9){
         /* YYYYxMMxDD or YYYYxDDxMM */
-        if(b[i+4] == b[i+7] && (b[i+4]=='-'||b[i+4]=='/')){
-            if(b[i]   >= '1' && b[i]   <= '9' &&
+        if(b[i+4] == b[i+7] && b[i+4] == '-'){
+            if(b[i] >= '1' && b[i] <= '9' &&
                     b[i+1] >= '0' && b[i+1] <= '9' &&
                     b[i+2] >= '0' && b[i+2] <= '9' &&
                     b[i+3] >= '0' && b[i+3] <= '9' &&
@@ -133,9 +146,9 @@ static int isdate(const char * b, int i, int len)
                 return 1;
             else
                 return 0;
-            /* DDxMMxYYYY or MMxDDxYYYY  */
-        } else if(b[i+2] == b[i+5] && (b[i+2]=='-'||b[i+2]=='/')){
-            if(b[i]   >= '0' && b[i]   <= '3' &&
+            /* DDxMMxYYYY or MMxDDxYYYY */
+        } else if(b[i+2] == b[i+5] && b[i+2] == '-'){
+            if(b[i] >= '0' && b[i] <= '3' &&
                     b[i+1] >= '0' && b[i+1] <= '9' &&
                     b[i+3] >= '0' && b[i+3] <= '3' &&
                     b[i+4] >= '0' && b[i+4] <= '9' &&
@@ -159,7 +172,7 @@ static int istime(const char * b, int i, int len)
     if((len-i)>7){
         /* HH:MM:SS */
         if(b[i+2] == ':' && b[i+5] == ':'){
-            if(b[i  ] >= '0' && b[i]   <= '9' &&
+            if(b[i] >= '0' && b[i] <= '9' &&
                     b[i+1] >= '0' && b[i+1] <= '9' &&
                     b[i+3] >= '0' && b[i+3] <= '5' &&
                     b[i+4] >= '0' && b[i+4] <= '9' &&
@@ -175,6 +188,38 @@ static int istime(const char * b, int i, int len)
         return 0;
 }
 
+static int ispattern(const char * b, int i, int len, const pattern_t *p)
+{
+    int n = 0;
+    int j = i;
+    if((len-i) >= p->matchsize){
+        while(n < p->cpldsize){
+            if(p->compiled[n] == b[j]){
+                n++;
+                j++;
+            } else if(p->compiled[n] == '\x02' && b[j] >= p->compiled[n+1] && b[j] <= p->compiled[n+2]){
+                n += 3;
+                j++;
+            } else if(p->compiled[n] == '\x03'){
+                n++;
+                if(p->compiled[n] == '\x02' && b[j] >= p->compiled[n+1] && b[j] <= p->compiled[n+2]){
+                    while(b[j] >= p->compiled[n+1] && b[j] <= p->compiled[n+2])
+                        j++;
+                    n += 3;
+                } else {
+                    while(p->compiled[n] == b[j])
+                        j++;
+                    n++;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    if(n == p->cpldsize && (j - i) >= p->matchsize)
+        return (j - i);
+    return 0;
+}
 
 void colorout_UnsetZero()
 {
@@ -185,6 +230,120 @@ void colorout_SetZero(double *zr)
 {
     hlzero = 1;
     too_small = *zr;
+}
+
+SEXP colorout_ListPatterns()
+{
+    int n = 0;
+    pattern_t *p = P;
+
+    while(p){
+        n++;
+        /*
+        printf("pattern = %s\nmatch size = %d\ncompiled = ", p->ptrn, p->matchsize);
+        for(int i = 0; i < strlen(p->compiled); i++)
+            if(p->compiled[i] == '\x02')
+                printf("%s2\033[0m", crnumber);
+            else if (p->compiled[i] == '\x03')
+                printf("%s3\033[0m", crnumber);
+            else
+                printf("%c", p->compiled[i]);
+        printf("\ncompiled size = %d\n", p->cpldsize);
+        */
+        p = p->next;
+    }
+
+    SEXP res = PROTECT(allocVector(STRSXP, n));
+    SEXP nms = PROTECT(allocVector(STRSXP, n));
+
+    p = P;
+    int i = 0;
+    while(p){
+        SET_STRING_ELT(nms, i, mkChar(p->ptrn));
+        SET_STRING_ELT(res, i, mkChar(p->color));
+        p = p->next;
+        i++;
+    }
+    setAttrib(res, R_NamesSymbol, nms);
+    UNPROTECT(2);
+    return res;
+}
+
+void colorout_DeletePattern(char **pattern)
+{
+    pattern_t *p = P;
+    pattern_t *prev = NULL;
+    pattern_t *next = NULL;
+    while(p){
+        next = p->next;
+        if(strcmp(*pattern, p->ptrn) == 0){
+            if(prev)
+                prev->next = p->next;
+            free(p->ptrn);
+            free(p->compiled);
+            free(p->color);
+            free(p);
+            if(p == P)
+                P = next;
+        } else {
+            prev = p;
+        }
+        p = next;
+    }
+}
+
+void colorout_AddPattern(char **pattern, char **color)
+{
+    pattern_t *p = (pattern_t*)calloc(1, sizeof(pattern_t));
+    p->ptrn = (char*)malloc(strlen(*pattern)+1);
+    strcpy(p->ptrn, *pattern);
+
+    // Compile the pattern for faster comparison
+    p->compiled = (char*)calloc(1, strlen(*pattern)+1);
+    int i = 0;
+    int j = 0;
+    int l = strlen(p->ptrn);
+    p->matchsize = 0;
+    while(i < l){
+        if(i > 0 && p->ptrn[i] == '*' && p->ptrn[i-1] != '\\'){
+            // Put x03 before the pattern to be repeated
+            if(i > 4 && p->ptrn[i-5] == '[' && p->ptrn[i-3] == '-' && p->ptrn[i-1] == ']'){
+                p->compiled[j] = p->compiled[j-1];
+                p->compiled[j-1] = p->compiled[j-2];
+                p->compiled[j-2] = p->compiled[j-3];
+                p->compiled[j-3] = '\x03';
+                j++;
+                i++;
+            } else {
+                p->compiled[j] = p->compiled[j-1];
+                p->compiled[j-1] = '\x03';
+                j++;
+                i++;
+            }
+        } else if(i < (l - 4) && p->ptrn[i] == '[' && p->ptrn[i + 2] == '-' && p->ptrn[i + 4] == ']'){
+            p->compiled[j] = '\x02';
+            p->compiled[j+1] = p->ptrn[i+1];
+            p->compiled[j+2] = p->ptrn[i+3];
+            i += 5;
+            j += 3;
+            p->matchsize++;
+        } else {
+            p->compiled[j] = p->ptrn[i];
+            i++;
+            j++;
+            p->matchsize++;
+        }
+    }
+    p->cpldsize = strlen(p->compiled);
+
+    p->color = (char*)malloc(strlen(*color)+1);
+    strcpy(p->color, *color);
+    p->crsize = strlen(p->color);
+
+    if(P)
+        p->next = P;
+
+    P = p;
 }
 
 static int max(const int a, const int b)
@@ -341,10 +500,36 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
         i = 0;
         j = normalsize;
         /* for all i smaller than obj length */
+        int haspttrn;
         while(i < len){
             if(j >= l)
                 newbuf = colorout_make_bigger(newbuf, &l);
-            /* NORMAL */
+            /* Custom patterns */
+            haspttrn = 0;
+            if(P){
+                int psz = 0;
+                pattern_t *p = P;
+                while(p){
+                    psz = ispattern(bbuf, i, len, p);
+                    if(psz){
+                        haspttrn = 1;
+                        strcat(newbuf, p->color);
+                        j += p->crsize;
+                        for(int k = 0; k < psz; k++){
+                            newbuf[j] = bbuf[i];
+                            i++;
+                            j++;
+                        }
+                        strcat(newbuf, crnormal);
+                        j += normalsize;
+                    }
+                    p = p->next;
+                }
+                if(haspttrn)
+                    continue;
+            }
+            if(haspttrn)
+                continue;
             if(bbuf[i] == '"'){
                 strcat(newbuf, crstring);
                 j += stringsize;
@@ -530,18 +715,6 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 }
                 strcat(newbuf, crnormal);
                 j += normalsize;
-                /* 'words' */
-            } else if(i < len && ((bbuf[i] >= 'A' && bbuf[i] <= 'Z')
-                        || (bbuf[i] >= 'a' && bbuf[i] <= 'z') || bbuf[i] == '.' || bbuf[i] == '_' || (signed char)bbuf[i] < 0)){
-                /* Normal word: get it as a whole */
-                while(i < len && ((bbuf[i] >= '0' && bbuf[i] <= '9') || (bbuf[i] >= 'A' && bbuf[i] <= 'Z') ||
-                            (bbuf[i] >= 'a' && bbuf[i] <= 'z') || bbuf[i] == '.' || bbuf[i] == '_' || (signed char)bbuf[i] < 0)){
-                    if(j >= l)
-                        newbuf = colorout_make_bigger(newbuf, &l);
-                    newbuf[j] = bbuf[i];
-                    i++;
-                    j++;
-                }
                 /* anything else */
             } else {
                 newbuf[j] = bbuf[i];

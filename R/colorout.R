@@ -187,6 +187,37 @@ setOutputColors256 <- function(...)
     return (invisible(NULL))
 }
 
+addPattern <- function(pattern, color)
+{
+    if(!is.character(pattern))
+        stop(gettext("pattern must be a string.", domain = "R-colorout"),
+                     call. = FALSE)
+    color <- GetColorCode(color, "color")
+    .C("colorout_AddPattern", pattern, color, PACKAGE = "colorout")
+    return(invisible(NULL))
+}
+
+deletePattern <- function(pattern)
+{
+    for(p in pattern)
+        .C("colorout_DeletePattern", p, PACKAGE = "colorout")
+    return(invisible(NULL))
+}
+
+print.coloroutPattern <- function(x, ...)
+{
+    cat(paste0(attr(x, "color"), x, "\033[0m\n"), sep = "")
+}
+
+listPatterns <- function()
+{
+    p <- .Call("colorout_ListPatterns", PACKAGE = "colorout")
+    v <- names(p)
+    attr(v, "color") <- unname(p)
+    class(v) <- "coloroutPattern"
+    v
+}
+
 unsetZero <- function()
 {
     .C("colorout_UnsetZero", PACKAGE = "colorout")

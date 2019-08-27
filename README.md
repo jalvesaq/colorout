@@ -24,6 +24,8 @@ color table made by the command `show256Colors()`.
 You can also set the colors to any arbitrary string. In this case, it is
 up to you to set valid values.
 
+You can also call the function `addPattern()` to set your own patterns to be
+colorized.
 
 ### Installation
 
