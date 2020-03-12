@@ -812,3 +812,8 @@ void colorout_noColorOutput()
         colorout_initialized = 0;
     }
 }
+
+
+SEXP colorout_is_enabled() {
+  return ScalarLogical(colorout_initialized);
+}
