@@ -79,6 +79,11 @@ noColorOut <- function()
     return (invisible(NULL))
 }
 
+isColorOut <- function()
+{
+    .Call("colorout_is_enabled", PACKAGE = "colorout")
+}
+
 GetColorCode <- function(x, name)
 {
     fname <- "setOutputColors: "
