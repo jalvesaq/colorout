@@ -4,7 +4,7 @@ colorout
 *colorout* is an R package that colorizes R output when running in a Unix
 (e.g. Linux and OS X) terminal emulator; it does not work on Microsoft Windows.
 The relevant code is written in C and, thus, it runs very quickly and you
-should not note any slowdown in R output. 
+should not note any slowdown in R output.
 
 R's `stdout` is parsed and numbers, negative numbers, dates in the standard
 format, strings, indices, and R constants are identified and wrapped by special
@@ -20,7 +20,7 @@ output is colorized accordingly; otherwise, it is colorized as "stderror"
 ### Customization
 
 You can customize the colors according to your preference, guided by the
-color table made by the command `show256Colors()`. 
+color table made by the command `show256Colors()`.
 You can also set the colors to any arbitrary string. In this case, it is
 up to you to set valid values.
 
@@ -41,12 +41,17 @@ Some people prefer to use
 [devtools](http://cran.r-project.org/web/packages/devtools/index.html) to
 install packages from github.
 
-_NOTE_: 
-The package cannot be on CRAN because it changes code already loaded by R and
-this is prohibited by the *CRAN Repository Policy*. The package replaces the
-functions that output results and messages to R Console, and this is necessary
-because we cannot colorize the output without replacing these functions.
+_NOTES_:
 
+  - The package cannot be on CRAN because it changes code already loaded by R
+    and this is prohibited by the *CRAN Repository Policy*. The package
+    replaces the functions that output results and messages to R Console, and
+    this is necessary because we cannot colorize the output without replacing
+    these functions.
+
+  - Because the package is not on CRAN, it is better to load it with
+    `require()` rather than `library()` to avoid error in your `~/.Rprofile`
+    after upgrading R.
 
 ### Previous Versions:
 
