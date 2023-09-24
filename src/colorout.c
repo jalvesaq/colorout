@@ -221,7 +221,7 @@ static int ispattern(const char * b, int i, int len, const pattern_t *p)
     return 0;
 }
 
-void colorout_UnsetZero()
+void colorout_UnsetZero(void)
 {
     hlzero = 0;
 }
@@ -232,7 +232,7 @@ void colorout_SetZero(double *zr)
     too_small = *zr;
 }
 
-SEXP colorout_ListPatterns()
+SEXP colorout_ListPatterns(void)
 {
     int n = 0;
     pattern_t *p = P;
@@ -353,7 +353,7 @@ static int max(const int a, const int b)
     return b;
 }
 
-static void alloc_piece()
+static void alloc_piece(void)
 {
     int maxsize;
 
@@ -734,7 +734,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
     free(bbuf);
 }
 
-void colorout_ColorOutput()
+void colorout_ColorOutput(void)
 {
     if(colorout_initialized)
         return;
@@ -802,7 +802,7 @@ void colorout_ColorOutput()
     colorout_initialized = 1;
 }
 
-void colorout_noColorOutput()
+void colorout_noColorOutput(void)
 {
     if(colorout_initialized){
         R_Outputfile = save_R_Outputfile;
@@ -814,6 +814,6 @@ void colorout_noColorOutput()
 }
 
 
-SEXP colorout_is_enabled() {
+SEXP colorout_is_enabled(void) {
   return ScalarLogical(colorout_initialized);
 }
