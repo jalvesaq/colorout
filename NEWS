@@ -1,6 +1,8 @@
-Version 1.2-2 (2019-07-14)
+Version 1.2.2 (2023-09-26)
 
    - Colorize patterns defined by users.
+
+   - New function: isColorOut().
 
 Version 1.2-1 (2019-28-04)
 

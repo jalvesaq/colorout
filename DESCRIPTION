@@ -1,6 +1,6 @@
 Package: colorout
-Version: 1.2-2
-Date: 2019-07-14
+Version: 1.2.2
+Date: 2023-09-26
 Title: Colorize R Output on Terminal Emulators
 Author: Jakson Aquino and Dominique-Laurent Couturier
 Maintainer: Jakson Alves de Aquino <jalvesaq@gmail.com>
@@ -14,7 +14,6 @@ Description: Colorize R output when it is running on a terminal emulator.
    the default Rstd_WriteConsoleEx which, when enabled, is responsible for
    printing messages in the Console when R is running in interactive mode.
    It works with RStudio, but there is no support for Graphical User
-   Interfaces that does not support ANSI colors, such as Windows RGui, RKward,
-   JGR etc.
+   Interfaces that does not support ANSI colors, such as Windows RGui.
 License: GPL (>= 2)
 URL: https://github.com/jalvesaq/colorout
