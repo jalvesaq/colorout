@@ -64,6 +64,18 @@ typedef struct pattern {
 
 pattern_t *P = NULL;
 
+static int isletter(const char b)
+{
+    return (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z');
+}
+
+static int isword(const char * b, int i, int len)
+{
+    int is_letter_preceeding = i > 0 ? isletter(b[i-1]) : 0;
+    int is_letter_following = isletter(b[i+len]);
+    return !is_letter_preceeding && !is_letter_following;
+}
+
 static int isnumber(const char * b, int i, int len)
 {
     int l = len;
@@ -566,35 +578,35 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 j += normalsize + 1;
                 /* NULL */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'U' && bbuf[i+2] == 'L' && bbuf[i+3] == 'L'
-                    && (bbuf[i+4] < 'A' || (bbuf[i+4] > 'Z' && bbuf[i+4] < 'a') || bbuf[i+4] > 'z')){
+                    && isword(bbuf, i, 4)){
                 sprintf(piece, "%sNULL%s", crconst, crnormal);
                 strcat(newbuf, piece);
                 i += 4;
                 j += 4 + normalsize + constsize;
                 /* TRUE */
             } else if(bbuf[i] == 'T' && bbuf[i+1] == 'R' && bbuf[i+2] == 'U' && bbuf[i+3] == 'E'
-                    && (bbuf[i+4] < 'A' || (bbuf[i+4] > 'Z' && bbuf[i+4] < 'a') || bbuf[i+4] > 'z')){
+                    && isword(bbuf, i, 4)){
                 sprintf(piece, "%sTRUE%s", crlogicalT, crnormal);
                 strcat(newbuf, piece);
                 i += 4;
                 j += 4 + normalsize + logicalTsize;
                 /* FALSE */
             } else if(bbuf[i] == 'F' && bbuf[i+1] == 'A' && bbuf[i+2] == 'L' && bbuf[i+3] == 'S' && bbuf[i+4] == 'E'
-                    && (bbuf[i+5] < 'A' || (bbuf[i+5] > 'Z' && bbuf[i+5] < 'a') || bbuf[i+5] > 'z')){
+                    && isword(bbuf, i, 5)){
                 sprintf(piece, "%sFALSE%s", crlogicalF, crnormal);
                 strcat(newbuf, piece);
                 i += 5;
                 j += 5 + normalsize + logicalFsize;
                 /* NA */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'A'
-                    && (bbuf[i+2] < 'A' || (bbuf[i+2] > 'Z' && bbuf[i+2] < 'a') || bbuf[i+2] > 'z')){
+                    && isword(bbuf, i, 2)){
                 sprintf(piece, "%sNA%s", crconst, crnormal);
                 strcat(newbuf, piece);
                 i += 2;
                 j += 2 + normalsize + constsize;
                 /* Inf */
             } else if(bbuf[i] == 'I' && bbuf[i+1] == 'n' && bbuf[i+2] == 'f'
-                    && (bbuf[i+3] < 'A' || (bbuf[i+3] > 'Z' && bbuf[i+3] < 'a') || bbuf[i+3] > 'z')){
+                    && !isletter(bbuf[i+3])){
                 if(i > 0 && bbuf[i-1] == '-'){
                     newbuf[j-1] = 0;
                     sprintf(piece, "%s-Inf%s", crinfinite, crnormal);
@@ -607,7 +619,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 j += 3 + normalsize + infinitesize;
                 /* NaN */
             } else if(bbuf[i] == 'N' && bbuf[i+1] == 'a' && bbuf[i+2] == 'N'
-                    && (bbuf[i+3] < 'A' || (bbuf[i+3] > 'Z' && bbuf[i+3] < 'a') || bbuf[i+3] > 'z')){
+                    && isword(bbuf, i, 3)){
                 sprintf(piece, "%sNaN%s", crconst, crnormal);
                 strcat(newbuf, piece);
                 i += 3;
