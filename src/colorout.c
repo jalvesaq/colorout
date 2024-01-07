@@ -76,8 +76,17 @@ static int isword(const char * b, int i, int len)
     return !is_letter_preceeding && !is_letter_following;
 }
 
+static int iswhitespace(const char b)
+{
+    /* space or horizontal tab, new line, vertical tab, form feed, carriage return */
+    return b == 32 || (b >= 9 && b <= 13);
+}
+
 static int isnumber(const char * b, int i, int len)
 {
+    if(i > 0 && !iswhitespace(b[i-1]))
+        return 0;
+
     int l = len;
     if(l > (i + 5))
         l = i + 5;
@@ -98,13 +107,6 @@ static int isnumber(const char * b, int i, int len)
     return 1;
 }
 
-static int notletter(char c)
-{
-
-    if ((c > '\000' && c < '0') || (c > '9' && c < 'A') || (c > 'Z' && c < 'a') || (c > 'z' && c < '\x7f'))
-        return 1;
-    return 0;
-}
 
 static int iszero(const char * b, int i, int len)
 {
@@ -680,7 +682,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 strcat(newbuf, crnormal);
                 j += normalsize;
                 /* positive numbers */
-            } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len) && (i == 0 || notletter(bbuf[i-1]))){
+            } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len)){
                 if (hlzero && iszero(bbuf, i, len)){
                     strcat(newbuf, crzero);
                     j += zerosize;
