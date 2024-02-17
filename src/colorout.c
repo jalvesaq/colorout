@@ -84,7 +84,7 @@ static int iswhitespace(const char b)
 
 static int isnumber(const char * b, int i, int len)
 {
-    if(i > 0 && !iswhitespace(b[i-1]))
+    if(i > 0 && !iswhitespace(b[i-1]) && !b[i-1] == '-')
         return 0;
 
     int l = len;
