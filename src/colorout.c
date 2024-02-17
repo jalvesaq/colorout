@@ -76,8 +76,17 @@ static int isword(const char * b, int i, int len)
     return !is_letter_preceeding && !is_letter_following;
 }
 
+static int iswhitespace(const char b)
+{
+    /* space or horizontal tab, new line, vertical tab, form feed, carriage return */
+    return b == 32 || (b >= 9 && b <= 13);
+}
+
 static int isnumber(const char * b, int i, int len)
 {
+    if(i > 0 && !iswhitespace(b[i-1]))
+        return 0;
+
     int l = len;
     if(l > (i + 5))
         l = i + 5;
