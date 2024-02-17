@@ -10,8 +10,6 @@
 
 
 .onLoad <- function(libname, pkgname) {
-    library.dynam("colorout", pkgname, libname, local = FALSE);
-
     if(is.null(getOption("colorout.anyterm")))
         options(colorout.anyterm = FALSE)
     if(is.null(getOption("colorout.dumb")))
@@ -22,12 +20,17 @@
         options(colorout.notatty = FALSE)
     if(is.null(getOption("colorout.verbose")))
         options(colorout.verbose = 0)
+    return(invisible(NULL))
+}
 
+.onAttach <- function(libname, pkgname) {
     msg <- testTermForColorOut()
-    if(msg == "OK")
+    if (msg == "OK") {
+        library.dynam("colorout", pkgname, libname, local = FALSE);
         ColorOut()
-    else if(getOption("colorout.verbose") > 0){
-        msg <- paste(gettext("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.", domain = "R-colorout"),
+    } else if(getOption("colorout.verbose") > 0){
+        msg <- paste(gettext("The R output will not be colorized because it seems that your terminal does not support ANSI escape codes.",
+                             domain = "R-colorout"),
                      msg)
         warning(msg, call. = FALSE, immediate. = TRUE)
     }
@@ -81,7 +84,10 @@ noColorOut <- function()
 
 isColorOut <- function()
 {
-    .Call("colorout_is_enabled", PACKAGE = "colorout")
+    is_it <- try(.Call("colorout_is_enabled", PACKAGE = "colorout"), silent = TRUE)
+    if (class(is_it)[1] == "try-error")
+        return(FALSE)
+    return(is_it)
 }
 
 GetColorCode <- function(x, name)
