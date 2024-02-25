@@ -85,7 +85,7 @@ noColorOut <- function()
 isColorOut <- function()
 {
     is_it <- try(.Call("colorout_is_enabled", PACKAGE = "colorout"), silent = TRUE)
-    if (class(is_it)[1] == "try-error")
+    if (inherits(is_it, "try-error"))
         return(FALSE)
     return(is_it)
 }
