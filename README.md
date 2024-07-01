@@ -16,16 +16,9 @@ and their translations to many languages. If these expressions are found, the
 output is colorized accordingly; otherwise, it is colorized as "stderror"
 (magenta, by default).
 
+Screenshot:
 
-### Customization
-
-You can customize the colors according to your preference, guided by the
-color table made by the command `show256Colors()`.
-You can also set the colors to any arbitrary string. In this case, it is
-up to you to set valid values.
-
-You can also call the function `addPattern()` to set your own patterns to be
-colorized.
+![Screenshot](https://raw.githubusercontent.com/jalvesaq/colorout/master/man/figures/screenshot.png "Screenshot")
 
 ### Installation
 
@@ -53,12 +46,51 @@ _NOTES_:
     `require()` rather than `library()` to avoid error in your `~/.Rprofile`
     after upgrading R.
 
-### Previous Versions:
+  - You should load `colorout` only when you can actually see R's output, not
+    when running R non-interactively (see example on the next section).
+    This will avoid unnecessary error messages in some circumstances (in the
+    [languageserver](https://github.com/REditorSupport/languageserver)
+    log, for instance).
 
-Recently released versions are available at
-https://github.com/jalvesaq/colorout/releases and older versions are at
-https://drive.google.com/open?id=0ByMBQcSs9G7KYkotRGpRYjlLVDg
+### Customization
 
-Screenshot:
+You can customize the colors according to your preference, guided by the
+color table made by the command `show256Colors()`.
+You can also set the colors to any arbitrary string. In this case, it is
+up to you to set valid values.
 
-![Screenshot](https://raw.githubusercontent.com/jalvesaq/colorout/master/man/figures/screenshot.png "Screenshot")
+You can also call the function `addPattern()` to set your own patterns to be
+colorized.
+
+Example of how to load `colorout` from your `~/.Rprofile`:
+
+```r
+if (interactive() || isatty(stdout())) {
+    options(colorout.verbose = 1)
+    if (require("colorout", quietly = FALSE)) {
+        # Gruvbox color scheme by @sjlva
+        colorout::setOutputColors(
+            index    = "\x1b[38;2;215;153;33m",
+            normal   = "\x1b[38;2;235;219;178m",
+            number   = "\x1b[38;2;211;134;155m",
+            negnum   = "\x1b[38;2;104;157;106m",
+            zero     = "\x1b[38;2;69;133;136m",
+            infinite = "\x1b[38;2;250;189;47m",
+            string   = "\x1b[38;2;184;187;38m",
+            date     = "\x1b[38;2;254;128;25m",
+            const    = "\x1b[38;2;250;189;47m",
+            true     = "\x1b[38;2;142;192;124m",
+            false    = "\x1b[38;2;251;73;52m",
+            warn     = "\x1b[38;2;250;189;47m",
+            stderror = "\x1b[38;2;204;36;29m",
+            error    = "\x1b[38;2;204;36;29m",
+            verbose  = TRUE
+        )
+    }
+}
+```
+
+Try different colors and, when happy with your colorscheme, change
+`colorout.verbose` to `0`, `quietly` to `TRUE`, and `verbose` to `FALSE`. If
+you don't understand the color codes above, see
+<https://github.com/jalvesaq/colorout/issues/27#issuecomment-1692518129>.
