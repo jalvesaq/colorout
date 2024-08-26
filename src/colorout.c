@@ -455,7 +455,13 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
     /* Do nothing if the output was already colorized by another package */
     for(i = 0; i < len; i++)
         if(buf[i] == 0x1b){
-            printf("%s", buf);
+            if (otype) {
+                fprintf(stderr, "%s", buf);
+                fflush(stderr);
+            } else {
+                printf("%s", buf);
+                fflush(stdout);
+            }
             return;
         }
 
@@ -748,9 +754,8 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
             printf("%s\033[0m\n", newbuf);
         else
             printf("%s\033[0m", newbuf);
-
-        free(newbuf);
         fflush(stdout);
+        free(newbuf);
     }
     free(bbuf);
 }
