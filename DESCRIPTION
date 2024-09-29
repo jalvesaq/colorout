@@ -1,6 +1,6 @@
 Package: colorout
-Version: 1.3-1
-Date: 2024-07-03
+Version: 1.3-2
+Date: 2024-09-29
 Title: Colorize R Output on Terminal Emulators
 Author: Jakson Aquino and Dominique-Laurent Couturier
 Maintainer: Jakson Alves de Aquino <jalvesaq@gmail.com>
