@@ -22,10 +22,17 @@ Screenshot:
 
 ### Installation
 
-You can install the package by running the following commands in a terminal
+You can install the latest release version of the package from
+[R-multiverse](https://community.r-multiverse.org/):
+
+```r
+install.packages('colorout', repos = 'https://community.r-multiverse.org'))
+```
+
+You can install the development version by running the following commands in a terminal
 emulator:
 
-```
+```sh
 git clone https://github.com/jalvesaq/colorout.git
 R CMD INSTALL colorout
 ```
