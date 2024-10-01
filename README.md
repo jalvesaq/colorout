@@ -26,7 +26,7 @@ You can install the latest release version of the package from
 [R-multiverse](https://community.r-multiverse.org/):
 
 ```r
-install.packages('colorout', repos = 'https://community.r-multiverse.org'))
+install.packages('colorout', repos = 'https://community.r-multiverse.org')
 ```
 
 You can install the development version by running the following commands in a terminal
