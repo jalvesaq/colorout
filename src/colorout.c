@@ -108,7 +108,7 @@ static int isnumber(const char * b, int i, int len)
 }
 
 
-static int iszero(const char * b, int i, int len)
+static int is_zero(const char * b, int i, int len)
 {
     char *charnum, *stopstring;
     double x;
@@ -689,7 +689,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 j += normalsize;
                 /* positive numbers */
             } else if(bbuf[i] >= '0' && bbuf[i] <= '9' && isnumber(bbuf, i, len)){
-                if (hlzero && iszero(bbuf, i, len)){
+                if (hlzero && is_zero(bbuf, i, len)){
                     strcat(newbuf, crzero);
                     j += zerosize;
                 }else{
@@ -715,7 +715,7 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
                 j += normalsize;
                 /* negative numbers */
             } else if(bbuf[i] == '-' && (bbuf[i+1] >= '0' && bbuf[i+1] <= '9') && isnumber(bbuf, i+1, len)){
-                if (hlzero && iszero(bbuf, i+1, len)){
+                if (hlzero && is_zero(bbuf, i+1, len)){
                     strcat(newbuf, crzero);
                     j += zerosize;
                 }else{
