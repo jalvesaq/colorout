@@ -76,29 +76,26 @@ static int isword(const char * b, int i, int len)
     return !is_letter_preceeding && !is_letter_following;
 }
 
-static int iswhitespace(const char b)
+static int isdelim(const char b)
 {
-    /* space or horizontal tab, new line, vertical tab, form feed, carriage return */
-    return b == 32 || (b >= 9 && b <= 13);
+    /* not a letter or number */
+    return (b >= 0 && b <= 47) || (b >= 58 && b <= 63) || (b >= 91 && b <= 94) || (b >= 123 && b <= 126);
 }
 
 static int isnumber(const char * b, int i, int len)
 {
-    if(i > 0 && !iswhitespace(b[i-1]) && b[i-1] != '-')
+    if(i > 0 && !isdelim(b[i-1]))
         return 0;
 
+    /* Look 8 bytes ahead */
     int l = len;
-    if(l > (i + 5))
-        l = i + 5;
+    if(l > (i + 8))
+        l = i + 8;
     i++;
     while(i < l){
-        if(((b[i] > 0 && b[i] < '0') || (b[i] > '9' && b[i] < 'A') || (b[i] > 'Z' && b[i] < 'a') || (b[i] > 'z' && b[i] > 0)) &&
-                b[i] != '.' && b[i] != ',' &&
-                !(b[i] == 'e' && (i + 2) < len && (b[i+1] == '-' || b[i+1] == '+') && b[i+2] >= '0' && b[i+2] <= '9') &&
-                !(b[i-1] == 'e' && (b[i] == '-' || b[i] == '+')))
-            break;
-        if((b[i] < '0' || b[i] > '9') &&
-                b[i] != '.' && b[i] != ',' &&
+        if (isdelim(b[i]))
+            return 1;
+        if(!(b[i] >= '0' && b[i] <= '9') && b[i] != '.' && b[i] != ',' &&
                 !(b[i] == 'e' && (i + 2) < len && (b[i+1] == '-' || b[i+1] == '+') && b[i+2] >= '0' && b[i+2] <= '9') &&
                 !(b[i-1] == 'e' && (b[i] == '-' || b[i] == '+')))
             return 0;
