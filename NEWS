@@ -1,3 +1,19 @@
+Version 1.3-3 (2025-06-02)
+
+- Improve detection of number delimiters.
+
+- Fix compilation failure.
+
+Version 1.3-2 (2024-08-26)
+
+- Bug fix: send already colorized buffer to correct stream (stderr or stdout).
+
+Version 1.3-1 (2024-07-03)
+
+- Do not colorize output when package is loaded, only when attached.
+
+- Include preceding char in reserved word matching
+
 Version 1.3-0 (2023-09-26)
 
    - Colorize patterns defined by users.
