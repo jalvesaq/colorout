@@ -39,7 +39,7 @@ Colorize R output on terminal emulators
   R should be built against libreadline since libedit may cause issues.
 
   The function that enables the colorization of R output is \link{ColorOut},
-  and it is called automatically when the package is loaded. However, it will
+  and it is called automatically when the package is attached. However, it will
   do nothing if \code{Sys.getenv("TERM")} returns either \code{""} or
   \code{"dumb"}. The output will not be colorized also if the result of either
   \code{interactive()} or \code{isatty(stdout())} is \code{FALSE}. You can
