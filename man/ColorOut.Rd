@@ -3,7 +3,7 @@
 \title{Colorize R output in terminal emulator}
 \description{
   Colorize output of R running in a terminal emulator. The function is called
-  automatically when the package is loaded.
+  automatically when the package is attached.
 }
 \usage{
 ColorOut()
