@@ -23,15 +23,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <Rinterface.h>
+#else
+#include <windows.h>
+#endif
 
 #define R_INTERFACE_PTRS 1
+
+/* The console hook below (ptr_R_WriteConsoleEx, R_Outputfile,
+   R_Consolefile) only exists on Unix. On Windows R does not expose these
+   pointers to packages (see R_ext/RStartup.h), so the automatic
+   colorization is done through an R-level fallback instead. */
 
 /* We could use "extern char OutDec;" and test only OutDec instead of always
    testing both '.' and ',', but some functions (like mtable of memisc
    package) always print a '.' regardless of the value of OutDec, and ',' is
    the thousands separator in the US and GB. */
 
+#ifndef _WIN32
 extern void (*ptr_R_WriteConsole)(const char *, int);
 extern void (*ptr_R_WriteConsoleEx)(const char *, int, int);
 
@@ -39,6 +49,7 @@ static void (*save_ptr_R_WriteConsole)(const char *, int);
 static void (*save_ptr_R_WriteConsoleEx)(const char *, int, int);
 static void *save_R_Outputfile;
 static void *save_R_Consolefile;
+#endif
 
 static char crnormal[64], crnumber[64], crnegnum[64], crdate[64], crstring[64],
             crconst[64], crstderr[64], crwarn[64], crerror[64],
@@ -364,7 +375,7 @@ void colorout_AddPattern(char **pattern, char **color)
     P = p;
 }
 
-static int max(const int a, const int b)
+static int colorout_max(const int a, const int b)
 {
     if(a > b)
         return a;
@@ -375,9 +386,9 @@ static void alloc_piece(void)
 {
     int maxsize;
 
-    maxsize = max(logicalTsize, logicalFsize);
-    maxsize = max(maxsize, constsize);
-    maxsize = max(maxsize, infinitesize);
+    maxsize = colorout_max(logicalTsize, logicalFsize);
+    maxsize = colorout_max(maxsize, constsize);
+    maxsize = colorout_max(maxsize, infinitesize);
 
     if(piece != NULL)
         free(piece);
@@ -444,6 +455,8 @@ char *colorout_make_bigger(char *ptr, int *len)
 
 
 /* This function color prints the contents of 'buf', of length 'len' and type 'otype' */
+/* Unix only: on Windows R does not expose ptr_R_WriteConsoleEx to packages. */
+#ifndef _WIN32
 void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
 {
     char *newbuf, *bbuf;
@@ -756,6 +769,33 @@ void colorout_R_WriteConsoleEx (const char *buf, int len, int otype)
     }
     free(bbuf);
 }
+#endif /* _WIN32 console hook */
+
+/* Enable ANSI (virtual terminal) processing on Windows 10+. No-op on Unix. */
+void colorout_EnableVT(void)
+{
+#ifdef _WIN32
+    HANDLE h;
+    DWORD mode;
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+    h = GetStdHandle(STD_OUTPUT_HANDLE);
+    if(h != NULL && h != INVALID_HANDLE_VALUE &&
+       GetConsoleMode(h, &mode)){
+        mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(h, mode);
+    }
+    h = GetStdHandle(STD_ERROR_HANDLE);
+    if(h != NULL && h != INVALID_HANDLE_VALUE &&
+       GetConsoleMode(h, &mode)){
+        mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(h, mode);
+    }
+#else
+    /* Nothing to do on Unix: terminals already interpret ANSI codes. */
+#endif
+}
 
 void colorout_ColorOutput(void)
 {
@@ -763,7 +803,8 @@ void colorout_ColorOutput(void)
         return;
 
     if(colors_initialized == 0){
-        if(strcmp(getenv("TERM"), "fbterm") == 0){
+        const char *term = getenv("TERM");
+        if(term && strcmp(term, "fbterm") == 0){
             strcpy(crnormal, "\033[1;40}");
             strcpy(crnumber, "\033[1;214}");
             strcpy(crnegnum, "\033[1;209}");
@@ -811,7 +852,9 @@ void colorout_ColorOutput(void)
     }
 
     /* Replace Rstd_WriteConsoleEx() with colorout_R_WriteConsoleEx().
-     * See R source code: files src/unix/system.c and src/unix/sys-std.c */
+     * See R source code: files src/unix/system.c and src/unix/sys-std.c.
+     * Unix only: Windows does not expose these pointers to packages. */
+#ifndef _WIN32
     save_R_Outputfile = R_Outputfile;
     save_R_Consolefile = R_Consolefile;
     save_ptr_R_WriteConsole = ptr_R_WriteConsole;
@@ -821,6 +864,9 @@ void colorout_ColorOutput(void)
     R_Consolefile = NULL;
     ptr_R_WriteConsole = NULL;
     ptr_R_WriteConsoleEx = colorout_R_WriteConsoleEx;
+#else
+    colorout_EnableVT();
+#endif
 
     colorout_initialized = 1;
 }
@@ -828,10 +874,12 @@ void colorout_ColorOutput(void)
 void colorout_noColorOutput(void)
 {
     if(colorout_initialized){
+#ifndef _WIN32
         R_Outputfile = save_R_Outputfile;
         R_Consolefile = save_R_Consolefile;
         ptr_R_WriteConsole = save_ptr_R_WriteConsole;
         ptr_R_WriteConsoleEx = save_ptr_R_WriteConsoleEx;
+#endif
         colorout_initialized = 0;
     }
 }

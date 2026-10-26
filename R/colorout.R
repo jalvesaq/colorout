@@ -57,6 +57,9 @@ testTermForColorOut <- function()
     if(interactive() == FALSE && getOption("colorout.noninteractive") == FALSE)
         return(gettext("Not in an interactive session.\n", domain = "R-colorout"))
 
+    if(.Platform$OS.type == "windows")
+        return(testTermForColorOutWindows())
+
     if(isatty(stdout()) == FALSE && getOption("colorout.notatty") == FALSE && Sys.getenv("RSTUDIO") == "")
         return(gettext("isatty(stdout()) returned FALSE.\n", domain = "R-colorout"))
 
@@ -72,6 +75,48 @@ testTermForColorOut <- function()
     return(gettextf("Sys.getenv('TERM') returned '%s'.", Sys.getenv("TERM"), domain = "R-colorout"))
 }
 
+testTermForColorOutWindows <- function()
+{
+    # Windows RGui cannot display ANSI colors.
+    if(.Platform$GUI == "Rgui")
+        return(gettext("RGui does not support ANSI escape codes. Use Windows Terminal, RStudio or VS Code instead.\n",
+                       domain = "R-colorout"))
+
+    if(isatty(stdout()) == FALSE && getOption("colorout.notatty") == FALSE &&
+       Sys.getenv("RSTUDIO") == "" && Sys.getenv("VSCODE_PID") == "" &&
+       Sys.getenv("WT_SESSION") == "" && Sys.getenv("TERM_PROGRAM") == "")
+        return(gettext("isatty(stdout()) returned FALSE.\n", domain = "R-colorout"))
+
+    # Known ANSI capable front-ends on Windows.
+    if(Sys.getenv("RSTUDIO") != "")
+        return("OK")
+    if(Sys.getenv("WT_SESSION") != "")
+        return("OK")
+    if(Sys.getenv("VSCODE_PID") != "" || Sys.getenv("TERM_PROGRAM") != "")
+        return("OK")
+    if(Sys.getenv("ConEmuANSI") == "ON" || Sys.getenv("ANSICON") != "")
+        return("OK")
+
+    termenv <- Sys.getenv("TERM")
+
+    if(termenv != "" && termenv != "dumb")
+        return("OK")
+
+    if(termenv == "dumb")
+        if(getOption("colorout.dumb"))
+            return("OK")
+
+    # Windows 10+ consoles understand ANSI codes once virtual terminal
+    # processing is enabled (done by ColorOut()), so do not refuse
+    # colorization just because TERM is unset.
+    return("OK")
+}
+
+.colorout_has_chook <- function()
+{
+    .Platform$OS.type != "windows"
+}
+
 ColorOut <- function()
 {
     msg <- testTermForColorOut()
@@ -80,11 +125,15 @@ ColorOut <- function()
                            domain = "R-colorout"), msg), call. = FALSE)
 
     .C("colorout_ColorOutput", PACKAGE = "colorout")
+    if(!.colorout_has_chook())
+        enableColoroutFallback()
     return (invisible(NULL))
 }
 
 noColorOut <- function()
 {
+    if(!.colorout_has_chook())
+        disableColoroutFallback()
     .C("colorout_noColorOutput", PACKAGE = "colorout")
     return (invisible(NULL))
 }
@@ -92,6 +141,434 @@ noColorOut <- function()
 isColorOut <- function()
 {
     .Call("colorout_is_enabled", PACKAGE = "colorout")
+}
+
+# R-level fallback for platforms without a C console hook (Windows).
+# R on Windows does not expose ptr_R_WriteConsoleEx to packages, so on
+# Windows ColorOut() enables virtual terminal processing and wraps
+# base::cat() and base::print() to colorize console output with pure R
+# code. The print() replacement stays a real S3 generic (its body starts
+# with UseMethod()) so packages that inspect S3 generics keep working.
+.colorout_env <- new.env(parent = emptyenv())
+.colorout_env$fallback_active <- FALSE
+.colorout_env$orig_cat <- NULL
+.colorout_env$orig_print <- NULL
+.colorout_env$orig_print_dispatch <- NULL
+.colorout_env$colors <- NULL
+.colorout_env$zero_limit <- NA_real_
+
+.colorout_default_colors <- function()
+{
+    list(normal = "\033[0;38;5;40m",
+         number = "\033[0;38;5;214m",
+         negnum = "\033[0;38;5;209m",
+         date = "\033[0;38;5;179m",
+         string = "\033[0;38;5;85m",
+         const = "\033[0;38;5;35m",
+         stderror = "\033[0;38;5;213m",
+         warn = "\033[0;1;38;5;1m",
+         error = "\033[0;48;5;1;38;5;15m",
+         true = "\033[0;38;5;78m",
+         false = "\033[0;38;5;203m",
+         infinite = "\033[0;38;5;39m",
+         index = "\033[0;38;5;30m",
+         zero = "\033[0;38;5;226m")
+}
+
+.colorout_ensure_colors <- function()
+{
+    if(is.null(.colorout_env$colors))
+        .colorout_env$colors <- .colorout_default_colors()
+    .colorout_env$colors
+}
+
+# Convert a colorout user pattern (with '*' and '[a-z]' wildcards) to a
+# regular expression. Returns NULL for empty patterns.
+.colorout_pattern_to_regex <- function(pat)
+{
+    if(!nzchar(pat))
+        return(NULL)
+    # Protect the colorout escape for a literal star.
+    pat <- gsub("\\\\\\*", "\001STAR\001", pat)
+    # Escape regex metacharacters that are literal in colorout syntax.
+    pat <- gsub("([.^{($|+?}])", "\\\\\\1", pat)
+    pat <- gsub("\001STAR\001", "\\\\*", pat)
+    pat
+}
+
+.colorout_is_zero_token <- function(tok, limit)
+{
+    if(is.na(limit))
+        return(FALSE)
+    v <- suppressWarnings(as.numeric(gsub(",", ".", tok, fixed = TRUE)))
+    !is.na(v) && abs(v) < limit
+}
+
+# Colorize a single console string for stdout. Mirrors the C parser
+# approximately: user patterns, quoted strings, indexes, hex numbers,
+# dates, times, numbers (negative/zero aware), R constants.
+.colorout_colorize_stdout <- function(txt, cols)
+{
+    if(is.na(txt) || !nzchar(txt))
+        return(txt)
+    if(grepl("\x1b", txt, fixed = TRUE))
+        return(txt) # already colorized
+
+    reset <- "\033[0m"
+    normal <- cols$normal
+
+    # Keep trailing newlines outside the color wrapper (like the C hook,
+    # which emits the reset before the newline).
+    core <- sub("[\r\n]+$", "", txt)
+    trail <- substr(txt, nchar(core) + 1L, nchar(txt))
+    if(!nzchar(core))
+        return(txt)
+    txt <- core
+
+    # Placeholder alphabet (letters only so later passes ignore them).
+    ph_ids <- character(0)
+    ph_vals <- character(0)
+    ph_n <- 0L
+    new_placeholder <- function(val) {
+        ph_n <<- ph_n + 1L
+        # base-26 letters: a, b, ..., z, aa, ab, ...
+        n <- ph_n
+        s <- ""
+        while(n > 0L) {
+            r <- (n - 1L) %% 26L
+            s <- paste0(intToUtf8(97L + r), s)
+            n <- (n - 1L) %/% 26L
+        }
+        ph_ids <<- c(ph_ids, paste0("\001", s, "\001"))
+        ph_vals <<- c(ph_vals, val)
+        ph_ids[ph_n]
+    }
+
+    # 1. User patterns first (same priority as in C).
+    pats <- tryCatch(listPatterns(), error = function(e) NULL)
+    if(!is.null(pats) && length(pats)) {
+        pcols <- attr(pats, "color")
+        for(i in seq_along(pats)) {
+            rx <- .colorout_pattern_to_regex(pats[i])
+            if(is.null(rx))
+                next
+            m <- gregexpr(rx, txt, perl = TRUE)[[1]]
+            if(m[1] == -1L)
+                next
+            ml <- attr(m, "match.length")
+            # Replace from last to first to keep positions valid.
+            for(k in rev(seq_along(m))) {
+                if(ml[k] <= 0L)
+                    next
+                hit <- substr(txt, m[k], m[k] + ml[k] - 1L)
+                repl <- paste0(pcols[i], hit, normal)
+                ph <- new_placeholder(repl)
+                txt <- paste0(substr(txt, 1L, m[k] - 1L), ph,
+                              substr(txt, m[k] + ml[k], nchar(txt)))
+            }
+        }
+    }
+
+    # 2. Double quoted strings (stops at newline like the C version).
+    m <- gregexpr("\"(?:[^\"\\\\\n]|\\\\.)*\"", txt, perl = TRUE)[[1]]
+    if(m[1] != -1L) {
+        ml <- attr(m, "match.length")
+        for(k in rev(seq_along(m))) {
+            hit <- substr(txt, m[k], m[k] + ml[k] - 1L)
+            ph <- new_placeholder(paste0(cols$string, hit, normal))
+            txt <- paste0(substr(txt, 1L, m[k] - 1L), ph,
+                          substr(txt, m[k] + ml[k], nchar(txt)))
+        }
+    }
+
+    # 3. Everything else in a single pass.
+    altrep <- paste(
+        "\\[[,0-9 ]*\\d[,0-9 ]*\\]",             # index
+        "0x[0-9a-fA-F]+",                        # hex
+        "\\d{4}[-/]\\d{2}[-/]\\d{2} \\d{2}:\\d{2}:\\d{2}", # datetime
+        "\\d{4}[-/]\\d{2}[-/]\\d{2}",            # date YMD
+        "\\d{2}[-/]\\d{2}[-/]\\d{4}",            # date DMY/MDY
+        "\\d{2}:\\d{2}:\\d{2}",                  # time
+        "-?\\d+(?:[.,]\\d+)*(?:[eE][+-]?\\d+)?", # number
+        "NULL|TRUE|FALSE|NaN|-?Inf|NA",          # constants
+        sep = "|")
+    # Delimiter guards are applied per alternative below.
+    m <- gregexpr(paste0("(?:", altrep, ")"), txt, perl = TRUE)[[1]]
+    if(m[1] != -1L) {
+        ml <- attr(m, "match.length")
+        out <- ""
+        pos <- 1L
+        lim <- .colorout_env$zero_limit
+        for(k in seq_along(m)) {
+            s <- m[k]
+            e <- s + ml[k] - 1L
+            if(s > pos)
+                out <- paste0(out, substr(txt, pos, s - 1L))
+            hit <- substr(txt, s, e)
+            before <- if(s > 1L) substr(txt, s - 1L, s - 1L) else ""
+            after <- substr(txt, e + 1L, e + 1L)
+            is_word_char <- function(ch) grepl("[A-Za-z0-9_.]", ch, perl = TRUE)
+            col <- NULL
+            if(grepl("^\\[[,0-9 ]*\\d[,0-9 ]*\\]$", hit, perl = TRUE)) {
+                col <- cols$index
+            } else if(grepl("^0x[0-9a-fA-F]+$", hit, perl = TRUE)) {
+                col <- cols$number
+            } else if(grepl("^\\d{4}[-/]\\d{2}[-/]\\d{2}( \\d{2}:\\d{2}:\\d{2})?$", hit, perl = TRUE) ||
+                      grepl("^\\d{2}[-/]\\d{2}[-/]\\d{4}$", hit, perl = TRUE) ||
+                      grepl("^\\d{2}:\\d{2}:\\d{2}$", hit, perl = TRUE)) {
+                col <- cols$date
+            } else if(grepl("^-?\\d+(?:[.,]\\d+)*(?:[eE][+-]?\\d+)?$", hit, perl = TRUE)) {
+                # Approximate the C delimiter checks.
+                if((before == "" || !is_word_char(before)) &&
+                   (after == "" || after == "\n" || !grepl("[A-Za-z0-9_]", after, perl = TRUE))) {
+                    if(startsWith(hit, "-")) {
+                        if(.colorout_is_zero_token(substring(hit, 2L), lim))
+                            col <- cols$zero
+                        else
+                            col <- cols$negnum
+                    } else {
+                        if(.colorout_is_zero_token(hit, lim))
+                            col <- cols$zero
+                        else
+                            col <- cols$number
+                    }
+                }
+            } else if(hit %in% c("NULL", "NA", "NaN")) {
+                if((before == "" || !is_word_char(before)) &&
+                   (after == "" || after == "\n" || !grepl("[A-Za-z0-9_]", after, perl = TRUE)))
+                    col <- cols$const
+            } else if(hit %in% c("TRUE")) {
+                if((before == "" || !is_word_char(before)) &&
+                   (after == "" || after == "\n" || !grepl("[A-Za-z0-9_]", after, perl = TRUE)))
+                    col <- cols$true
+            } else if(hit %in% c("FALSE")) {
+                if((before == "" || !is_word_char(before)) &&
+                   (after == "" || after == "\n" || !grepl("[A-Za-z0-9_]", after, perl = TRUE)))
+                    col <- cols$false
+            } else if(grepl("^-?Inf$", hit, perl = TRUE)) {
+                if((before == "" || before == "-" || !is_word_char(before)) &&
+                   (after == "" || after == "\n" || !grepl("[A-Za-z0-9_]", after, perl = TRUE)))
+                    col <- cols$infinite
+            }
+            if(is.null(col))
+                out <- paste0(out, hit)
+            else
+                out <- paste0(out, col, hit, normal)
+            pos <- e + 1L
+        }
+        if(pos <= nchar(txt))
+            out <- paste0(out, substr(txt, pos, nchar(txt)))
+        txt <- out
+    }
+
+    # 4. Restore placeholders (already colorized, skip re-parsing).
+    if(length(ph_ids)) {
+        for(i in seq_along(ph_ids))
+            txt <- gsub(ph_ids[i], ph_vals[i], txt, fixed = TRUE)
+    }
+
+    paste0(normal, txt, reset, trail)
+}
+
+# Colorize a stderr buffer the same way the C hook does: a single color
+# chosen from the message prefix (warning/error/stderr).
+.colorout_colorize_stderr <- function(txt, cols)
+{
+    if(is.na(txt) || !nzchar(txt))
+        return(txt)
+    if(grepl("\x1b", txt, fixed = TRUE))
+        return(txt)
+    is_warn <- startsWith(txt, "Warning") || startsWith(txt, "WARNING") ||
+        startsWith(txt, "Lost warning messages") ||
+        startsWith(txt, gettext("Warning", domain = "R-colorout")) ||
+        startsWith(txt, gettext("WARNING", domain = "R-colorout"))
+    is_err <- startsWith(txt, "Error") || startsWith(txt, "ERROR") ||
+        startsWith(txt, gettext("Error", domain = "R-colorout")) ||
+        startsWith(txt, gettext("ERROR", domain = "R-colorout"))
+    col <- cols$stderror
+    if(is_warn)
+        col <- cols$warn
+    else if(is_err)
+        col <- cols$error
+    paste0(col, txt, "\033[0m")
+}
+
+.colorout_is_stderr_target <- function(file)
+{
+    if(missing(file))
+        return(FALSE)
+    if(inherits(file, "connection")) {
+        d <- tryCatch(suppressWarnings(summary(file)$description),
+                      error = function(e) "")
+        return(identical(d, "stderr"))
+    }
+    FALSE
+}
+
+.colorout_is_console_target <- function(file)
+{
+    if(missing(file))
+        return(TRUE)
+    if(is.character(file))
+        return(length(file) == 1L && (file == ""))
+    if(inherits(file, "connection")) {
+        d <- tryCatch(suppressWarnings(summary(file)$description),
+                      error = function(e) "")
+        return(d %in% c("stdout", "stderr", "console", ""))
+    }
+    FALSE
+}
+
+.colorout_cat_wrapper <- function(..., file = "", sep = " ", fill = FALSE,
+                                  labels = NULL, append = FALSE)
+{
+    orig <- .colorout_env$orig_cat
+    dots <- list(...)
+    # Never insert escape codes into files, pipes or sunk output
+    # (capture.output(), sink(), knitr, testthat, ...).
+    diverted <- tryCatch(sink.number() > 0L, error = function(e) FALSE)
+    if(!diverted && length(dots) && .colorout_is_console_target(file)) {
+        cols <- .colorout_ensure_colors()
+        to_stderr <- .colorout_is_stderr_target(file)
+        dots <- lapply(dots, function(x) {
+            if(is.character(x)) {
+                vapply(x, function(s) {
+                    if(is.na(s) || !nzchar(s))
+                        return(s)
+                    if(to_stderr)
+                        .colorout_colorize_stderr(s, cols)
+                    else
+                        .colorout_colorize_stdout(s, cols)
+                }, character(1), USE.NAMES = FALSE)
+            } else if(is.numeric(x) || is.logical(x)) {
+                s <- as.character(x)
+                vapply(s, function(elt) {
+                    if(is.na(elt) || !nzchar(elt))
+                        return(elt)
+                    if(to_stderr)
+                        .colorout_colorize_stderr(elt, cols)
+                    else
+                        .colorout_colorize_stdout(elt, cols)
+                }, character(1), USE.NAMES = FALSE)
+            } else {
+                x
+            }
+        })
+    }
+    do.call(orig, c(dots, list(file = file, sep = sep, fill = fill,
+                               labels = labels, append = append)))
+}
+
+# Wrapper for base::print(). Catches explicit print() calls and autoprint
+# of classed objects on platforms without a C console hook. Autoprint of
+# plain atomic vectors is done in C and cannot be intercepted here.
+#
+# The wrapper must remain a real S3 generic: packages such as S7 (used by
+# ggplot2) inspect the generic's body for a UseMethod() call when
+# registering S3 methods. A plain wrapper that calls the original print()
+# makes library(ggplot2) fail with "`generic` is a function, but not an
+# S3 generic function".
+#
+# Dispatching on an extra class lets us run .colorout_print_dispatch()
+# for every print() call while still passing the original object to the
+# original generic. UseMethod() only uses the dummy object's class for
+# dispatch; the method receives the original arguments. Using a dummy
+# avoids modifying x, which would fail for S4 objects.
+.colorout_print_wrapper <- function(x, ...)
+{
+    UseMethod("print",
+              structure(list(), class = c("colorout_dispatch", class(x))))
+}
+
+.colorout_print_dispatch <- function(x, ...)
+{
+    orig_print <- .colorout_env$orig_print
+    orig_cat <- .colorout_env$orig_cat
+    diverted <- tryCatch(sink.number() > 0L, error = function(e) FALSE)
+    if(diverted)
+        return(orig_print(x, ...))
+    txt <- utils::capture.output(orig_print(x, ...))
+    cols <- .colorout_ensure_colors()
+    for(ln in txt)
+        orig_cat(.colorout_colorize_stdout(ln, cols), "\n", sep = "")
+    invisible(x)
+}
+
+# Base namespace bindings are locked; assignInNamespace() refuses them on
+# recent R, so unlock/assign/relock explicitly (restored on disable).
+.colorout_patch_base <- function(name, fun)
+{
+    ns <- asNamespace("base")
+    unlockBinding(name, ns)
+    on.exit(lockBinding(name, ns), add = TRUE)
+    assign(name, fun, envir = ns)
+    invisible(NULL)
+}
+
+.colorout_unpatch_base <- function(name, orig)
+{
+    ns <- asNamespace("base")
+    unlockBinding(name, ns)
+    on.exit(lockBinding(name, ns), add = TRUE)
+    assign(name, orig, envir = ns)
+    invisible(NULL)
+}
+
+enableColoroutFallback <- function()
+{
+    if(isTRUE(.colorout_env$fallback_active))
+        return(invisible(NULL))
+    .colorout_ensure_colors()
+    if(is.null(.colorout_env$orig_cat))
+        .colorout_env$orig_cat <- base::cat
+    if(is.null(.colorout_env$orig_print))
+        .colorout_env$orig_print <- base::print
+
+    # Give the wrapper the base namespace as its environment so that
+    # packages which infer a generic's package from environment() (S7)
+    # still see print() as a base generic.
+    print_wrapper <- .colorout_print_wrapper
+    environment(print_wrapper) <- asNamespace("base")
+
+    .colorout_patch_base("cat", .colorout_cat_wrapper)
+    .colorout_patch_base("print", print_wrapper)
+
+    tbl <- get(".__S3MethodsTable__.", envir = asNamespace("base"))
+    if(is.null(.colorout_env$orig_print_dispatch) &&
+       exists("print.colorout_dispatch", envir = tbl, inherits = FALSE))
+        .colorout_env$orig_print_dispatch <-
+            get("print.colorout_dispatch", envir = tbl, inherits = FALSE)
+    registerS3method("print", "colorout_dispatch", .colorout_print_dispatch,
+                     envir = baseenv())
+
+    .colorout_env$fallback_active <- TRUE
+    invisible(NULL)
+}
+
+disableColoroutFallback <- function()
+{
+    if(!isTRUE(.colorout_env$fallback_active))
+        return(invisible(NULL))
+    if(!is.null(.colorout_env$orig_cat)) {
+        .colorout_unpatch_base("cat", .colorout_env$orig_cat)
+        .colorout_env$orig_cat <- NULL
+    }
+    if(!is.null(.colorout_env$orig_print)) {
+        .colorout_unpatch_base("print", .colorout_env$orig_print)
+        .colorout_env$orig_print <- NULL
+    }
+
+    tbl <- get(".__S3MethodsTable__.", envir = asNamespace("base"))
+    if(exists("print.colorout_dispatch", envir = tbl, inherits = FALSE)) {
+        if(is.null(.colorout_env$orig_print_dispatch))
+            rm(list = "print.colorout_dispatch", envir = tbl)
+        else
+            assign("print.colorout_dispatch",
+                   .colorout_env$orig_print_dispatch, envir = tbl)
+    }
+    .colorout_env$orig_print_dispatch <- NULL
+    .colorout_env$fallback_active <- FALSE
+    invisible(NULL)
 }
 
 GetColorCode <- function(x, name)
@@ -191,6 +668,23 @@ setOutputColors <- function(normal = 40, negnum = 209, zero = 226,
        crconst, crstderr, crwarn, crerror, crtrue, crfalse, crinfinite, crindex,
        crzero, as.integer(verbose), as.integer(newline), PACKAGE = "colorout")
 
+    # Keep an R-side copy for the Windows fallback (no C console hook there).
+    .colorout_env$colors <- list(normal = crnormal, number = crnumber,
+                                 negnum = crnegnum, date = crdate,
+                                 string = crstring, const = crconst,
+                                 stderror = crstderr, warn = crwarn,
+                                 error = crerror, true = crtrue,
+                                 false = crfalse, infinite = crinfinite,
+                                 index = crindex, zero = crzero)
+    if(is.na(zero.limit)){
+        .colorout_env$zero_limit <- NA_real_
+    } else {
+        if(is.numeric(zero.limit) && zero.limit > 0)
+            .colorout_env$zero_limit <- as.double(abs(zero.limit))
+        else
+            .colorout_env$zero_limit <- NA_real_
+    }
+
     return(invisible(NULL))
 }
 
@@ -236,6 +730,7 @@ listPatterns <- function()
 unsetZero <- function()
 {
     .C("colorout_UnsetZero", PACKAGE = "colorout")
+    .colorout_env$zero_limit <- NA_real_
     return(invisible(NULL))
 }
 
@@ -246,10 +741,11 @@ setZero <- function(z = 1e-12)
              call. = FALSE)
     z <- as.double(abs(z))
     .C("colorout_SetZero", z, PACKAGE = "colorout")
+    .colorout_env$zero_limit <- z
     return(invisible(NULL))
 }
 
-show256Colors <- function(outfile = "/tmp/table256.html")
+show256Colors <- function(outfile = file.path(tempdir(), "table256.html"))
 {
     c256 <- c("#000000", "#c00000", "#008000", "#804000", "#0000c0", "#c000c0",
               "#008080", "#c0c0c0", "#808080", "#ff6060", "#00ff00", "#ffff00",

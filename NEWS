@@ -4,6 +4,20 @@ Version 1.3-3 (2025-06-02)
 
 - Fix compilation failure.
 
+- Windows support: the package now installs on Windows. It enables
+  virtual terminal processing and colorizes output through an R-level
+  fallback in ANSI capable front-ends (Windows Terminal, RStudio, VS Code).
+  Windows RGui remains unsupported. show256Colors() now defaults to a file
+  in tempdir() instead of /tmp.
+
+- Windows fallback: keep print() as a real S3 generic and dispatch through
+  a colorout method. The previous plain wrapper broke S3 registration in
+  packages that inspect the generic's body for UseMethod(), making
+  library(ggplot2) fail with "`generic` is a function, but not an S3
+  generic function".
+
+- Fix potential crash when the TERM environment variable is unset.
+
 Version 1.3-2 (2024-08-26)
 
 - Bug fix: send already colorized buffer to correct stream (stderr or stdout).

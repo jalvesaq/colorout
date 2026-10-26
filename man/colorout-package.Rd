@@ -6,14 +6,15 @@
 Colorize R output on terminal emulators
 }
 \description{
-  Colorize R output when it is running on a Unix terminal emulator. The
-  library also works within RStudio, but there is no support for other
-  Graphical User Interfaces, such as Windows RGui, RKward, JGR, Rcmdr
-  that cannot display ANSI colors. It also did not work with Emacs with ess.
-  The functions of this package only work if R is compiled for Unix systems
-  (e.g., Linux and OS X) and it is running interactively in a terminal
-  emulator. The terminal emulator might have been called by a text editor,
-  such as Vim, Gedit, Kate or Geany.
+  Colorize R output when it is running in a terminal emulator that
+  understands ANSI escape sequences (Unix terminal emulators, Windows
+  Terminal, RStudio, VS Code, ...).
+  The library also works within RStudio, but there is no support for
+  Graphical User Interfaces that cannot display ANSI colors, such as
+  Windows RGui, RKward, JGR, Rcmdr. It also did not work with Emacs with ess.
+  R should be running interactively in a terminal emulator. The terminal
+  emulator might have been called by a text editor, such as Vim, Gedit,
+  Kate or Geany.
 
   Homepage: \url{https://github.com/jalvesaq/colorout}
 
@@ -36,6 +37,11 @@ Colorize R output on terminal emulators
   The package contains a C library with a function that replaces the default
   Rstd_WriteConsoleEx which, when enabled, is responsible for printing
   messages in the Console when R is running in interactive mode.
+  This console hook is only available on Unix systems; on Windows the
+  package enables virtual terminal processing and colorizes output through
+  an R-level fallback (explicit \code{cat()} and \code{print()} output;
+  autoprint of plain atomic vectors and \code{message()} /
+  \code{warning()} / \code{stop()} conditions are not intercepted there).
   R should be built against libreadline since libedit may cause issues.
 
   The function that enables the colorization of R output is \link{ColorOut},

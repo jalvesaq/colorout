@@ -1,8 +1,10 @@
 colorout
 ========
 
-*colorout* is an R package that colorizes R output when running in a Unix
-(e.g. Linux and OS X) terminal emulator; it does not work on Microsoft Windows.
+*colorout* is an R package that colorizes R output when running in a
+terminal emulator that supports ANSI escape sequences (Unix terminal
+emulators, Windows Terminal, RStudio, VS Code, ...). It does not work in
+front-ends without ANSI support, such as Windows RGui.
 The relevant code is written in C and, thus, it runs very quickly and you
 should not note any slowdown in R output.
 
@@ -36,6 +38,12 @@ emulator:
 git clone https://github.com/jalvesaq/colorout.git
 R CMD INSTALL colorout
 ```
+
+On Windows you need
+[Rtools](https://cran.r-project.org/bin/windows/Rtools/) to compile the
+package (it can be installed in your user folder, no admin rights required),
+and an ANSI capable terminal such as Windows Terminal, RStudio or VS Code
+(Windows RGui is not supported).
 
 Some people prefer to use
 [devtools](http://cran.r-project.org/web/packages/devtools/index.html) to

@@ -7,7 +7,7 @@
   You have to hover the mouse over the colors to see their codes.
 }
 \usage{
-show256Colors(outfile = "/tmp/table256.html")
+show256Colors(outfile = file.path(tempdir(), "table256.html"))
 }
 
 \arguments{
